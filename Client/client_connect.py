@@ -36,7 +36,7 @@ class ClientConnect:
         except:  # ConnectionAbortedError and ConnectionResetError
             logging.debug('Lost connection from {}'.format(self.mainsock.getpeername()))
             self.connect_status = self.StatusCode.DISCONNECT
-            self.lost_connect = True
+            self.lost_connection = True
 
     def stop_connection(self):
         logging.debug('Closed connection to {}'.format(self.mainsock.getpeername()))
