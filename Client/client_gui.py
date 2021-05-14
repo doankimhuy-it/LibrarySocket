@@ -49,7 +49,7 @@ class ClientWindow(QtWidgets.QMainWindow):
         # Username box
         self.label_username = QtWidgets.QLabel("Username", self.LogGroupBox)
         self.UsernameBox = QtWidgets.QLineEdit(self.LogGroupBox)
-        self.UsernameRegex = QtCore.QRegularExpression("[a-z.A-Z0-9]")
+        self.UsernameRegex = QtCore.QRegularExpression("[a-z.A-Z0-9]+")
         self.UsernameValidator = QtGui.QRegularExpressionValidator(self.UsernameRegex)
         self.UsernameBox.setValidator(self.UsernameValidator)
         #self.UsernameBox.move(100, 20)
@@ -60,7 +60,7 @@ class ClientWindow(QtWidgets.QMainWindow):
         # Password box
         self.label_password = QtWidgets.QLabel("Password", self.LogGroupBox)
         self.PasswordBox = QtWidgets.QLineEdit(self.LogGroupBox)
-        self.PasswordRegex = QtCore.QRegularExpression("[a-z.+=_,;:\\!@#$%^&*(~`)A-Z0-9]")
+        self.PasswordRegex = QtCore.QRegularExpression("[a-z.+=_,;:\\!@#$%^&*(~`)A-Z0-9]+")
         self.PasswordValidator = QtGui.QRegularExpressionValidator(self.PasswordRegex)
         self.PasswordBox.setValidator(self.UsernameValidator)
         #self.UsernameBox.move(100, 20)
