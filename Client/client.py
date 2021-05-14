@@ -8,7 +8,7 @@ client_connection = client_connect.ClientConnect()
 
 
 def click_connectbutton(window):
-    if (client_connection.connect_status == client_connection.StatusCode.DISCONNECT
+    if (client_connection.connect_status == client_connection.StatusCode.DISCONNECTED
             or client_connection.connect_status == client_connection.StatusCode.TIMEOUT):
 
         host_str = str(window.IPTextBox.text())
@@ -19,7 +19,7 @@ def click_connectbutton(window):
             errmsg.exec_()
             return -1
         port_str = int(port_str)
-        # Try to connect to server for the first time, after disconnect or timeout seasion
+        # Try to connect to server for the first time, after DISCONNECTED or timeout seasion
         # turn status to connecting
         client_connection.connect_status = client_connection.StatusCode.CONNECTING
         window.change_GUI_status(window.StatusCode.CONNECTING)
@@ -28,12 +28,12 @@ def click_connectbutton(window):
         connection_thread.start()
 
         # start timer - update GUI and send sample data to server (PING)
-        window.timer_update_GUI.start(500)
+        window.timer_update_GUI.start(1000)
 
     elif (client_connection.connect_status == client_connection.StatusCode.CONNECTED):
         # Users choose to close connection
         client_connection.stop_connection()
-        window.change_GUI_status(window.StatusCode.DISCONNECT)
+        window.change_GUI_status(window.StatusCode.DISCONNECTED)
         # stop the timer
         window.timer_update_GUI.stop()
 
@@ -43,17 +43,17 @@ def update_GUI(window):
         window.change_GUI_status(window.StatusCode.CONNECTING)
     elif (client_connection.connect_status == client_connection.StatusCode.TIMEOUT):
         window.change_GUI_status(window.StatusCode.TIMEOUT)
-    elif (client_connection.connect_status == client_connection.StatusCode.DISCONNECT):
+    elif (client_connection.connect_status == client_connection.StatusCode.DISCONNECTED):
         # In case lost connection from server, we make notification to user
         if (client_connection.lost_connection == True):
             client_connection.lost_connection = False
             server_address = str(client_connection.mainsock.getpeername()[0]) + ':' + str(client_connection.mainsock.getpeername()[1])
             errmsg = window.showError('Lost connection', ' from server: ' + server_address)
             errmsg.exec_()
-        window.change_GUI_status(window.StatusCode.DISCONNECT)
+        window.change_GUI_status(window.StatusCode.DISCONNECTED)
     elif (client_connection.connect_status == client_connection.StatusCode.CONNECTED):               # in-connecting
         window.change_GUI_status(window.StatusCode.CONNECTED)
-        # sent '00' after every 500ms to check server's signal
+        # sent '00' after every 1000ms to check server's signal
         client_connection.send_message('00')
 
 

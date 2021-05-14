@@ -9,7 +9,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 class ClientConnect:
     def __init__(self):
-        self.connect_status = self.StatusCode.DISCONNECT
+        self.connect_status = self.StatusCode.DISCONNECTED
         self.host = '0.0.0.0'
         self.port = 0
         self.mainsock = 0
@@ -21,32 +21,32 @@ class ClientConnect:
         self.mainsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             self.mainsock.connect((self.host, self.port))
-        except (ConnectionRefusedError, TimeoutError) as e: 
+        except (ConnectionRefusedError, TimeoutError) as e:
             logging.debug('Cannot connect to host {}'.format(e))
             self.connect_status = self.StatusCode.TIMEOUT   # timeout-status
             return
         else:
             logging.debug('Connected to server {}'.format(self.mainsock.getpeername()))
             self.connect_status = self.StatusCode.CONNECTED
-    
+
     def send_message(self, message):
         message = message.encode('utf-8')
         try:
             self.mainsock.sendall(message)
         except:  # ConnectionAbortedError and ConnectionResetError
             logging.debug('Lost connection from {}'.format(self.mainsock.getpeername()))
-            self.connect_status = self.StatusCode.DISCONNECT
+            self.connect_status = self.StatusCode.DISCONNECTED
             self.lost_connection = True
 
     def stop_connection(self):
         logging.debug('Closed connection to {}'.format(self.mainsock.getpeername()))
         end_message = 'Close'
         self.send_message(end_message)
-        self.connect_status = self.StatusCode.DISCONNECT
+        self.connect_status = self.StatusCode.DISCONNECTED
 
     class StatusCode(Enum):
         CONNECTED = auto(),
-        DISCONNECT = auto(),
+        DISCONNECTED = auto(),
         CONNECTING = auto(),
         TIMEOUT = auto()
 

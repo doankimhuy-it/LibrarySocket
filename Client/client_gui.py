@@ -35,7 +35,7 @@ class ClientWindow(QtWidgets.QMainWindow):
         self.ConnectButton.move(self.PortTextBox.geometry().x() + self.PortTextBox.width() + 5, 20)
 
         # Connect status
-        self.ConnectStatusBox = QtWidgets.QLabel("DISCONNECTED!", self, alignment=QtCore.Qt.AlignCenter)
+        self.ConnectStatusBox = QtWidgets.QLabel("DISCONNECTEDED!", self, alignment=QtCore.Qt.AlignCenter)
         self.ConnectStatusBox.move(10 + self.ConnectButton.geometry().x() + self.ConnectButton.width(), 20)
         self.ConnectStatusBox.setStyleSheet("QLabel { border: 1.5px solid black;font-weight: bold; color : red; }")
 
@@ -81,6 +81,8 @@ class ClientWindow(QtWidgets.QMainWindow):
 
         self.LogGroupBox.setLayout(self.LogLayout)
 
+        self.LogGroupBox.setVisible(False)
+
     @QtCore.Slot()
     def add_click_behavior(self, obj, func):
         obj.clicked.connect(func)
@@ -100,7 +102,7 @@ class ClientWindow(QtWidgets.QMainWindow):
             self.ConnectStatusBox.setText('CONNECTED!')
             self.ConnectStatusBox.setStyleSheet("QLabel { border: 1.5px solid black;font-weight: bold; color : green; }")
 
-        if StatusCode == self.StatusCode.DISCONNECT:
+        if StatusCode == self.StatusCode.DISCONNECTED:
             self.ConnectButton.setText('Connect!')
             self.ConnectStatusBox.setText('DISCONNECTED!')
             self.ConnectStatusBox.setStyleSheet("QLabel { border: 1.5px solid black;font-weight: bold; color : red; }")
@@ -121,9 +123,10 @@ class ClientWindow(QtWidgets.QMainWindow):
 
     class StatusCode(Enum):
         CONNECTED = auto(),
-        DISCONNECT = auto(),
+        DISCONNECTED = auto(),
         CONNECTING = auto(),
-        TIMEOUT = auto()
+        TIMEOUT = auto(),
+        LOGGED_IN = auto()
 
 
 if __name__ == "__main__":
