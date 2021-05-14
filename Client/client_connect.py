@@ -6,7 +6,6 @@ from enum import Enum, auto
 # for debugging
 logging.basicConfig(level=logging.DEBUG)
 
-
 class ClientConnect:
     def __init__(self):
         self.connect_status = self.StatusCode.DISCONNECTED

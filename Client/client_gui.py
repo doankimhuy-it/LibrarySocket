@@ -35,7 +35,7 @@ class ClientWindow(QtWidgets.QMainWindow):
         self.ConnectButton.move(self.PortTextBox.geometry().x() + self.PortTextBox.width() + 5, 20)
 
         # Connect status
-        self.ConnectStatusBox = QtWidgets.QLabel("DISCONNECTEDED!", self, alignment=QtCore.Qt.AlignCenter)
+        self.ConnectStatusBox = QtWidgets.QLabel("DISCONNECTED!", self, alignment=QtCore.Qt.AlignCenter)
         self.ConnectStatusBox.move(10 + self.ConnectButton.geometry().x() + self.ConnectButton.width(), 20)
         self.ConnectStatusBox.setStyleSheet("QLabel { border: 1.5px solid black;font-weight: bold; color : red; }")
 
@@ -81,7 +81,7 @@ class ClientWindow(QtWidgets.QMainWindow):
 
         self.LogGroupBox.setLayout(self.LogLayout)
 
-        self.LogGroupBox.setVisible(False)
+        self.LogGroupBox.setVisible(True)
 
     @QtCore.Slot()
     def add_click_behavior(self, obj, func):
