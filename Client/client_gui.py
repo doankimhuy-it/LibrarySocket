@@ -37,7 +37,7 @@ class ClientWindow(QtWidgets.QMainWindow):
         # Connect status
         self.ConnectStatusBox = QtWidgets.QLabel("DISCONNECTED!", self, alignment=QtCore.Qt.AlignCenter)
         self.ConnectStatusBox.move(10 + self.ConnectButton.geometry().x() + self.ConnectButton.width(), 20)
-        self.ConnectStatusBox.setStyleSheet("QLabel { border: 1.5px solid black;font-weight: bold; color : red; }")
+        self.ConnectStatusBox.setStyleSheet("QLabel { border: 1.5px solid black; font-weight: bold; color : red; }")
 
         # Login/Logout group box
         self.LogGroupBox = QtWidgets.QGroupBox("Login/Sign up", self)
@@ -81,7 +81,38 @@ class ClientWindow(QtWidgets.QMainWindow):
 
         self.LogGroupBox.setLayout(self.LogLayout)
 
-        self.LogGroupBox.setVisible(True)
+        self.LogGroupBox.setVisible(False)
+
+        # Book group box
+        self.BookGroupBox = QtWidgets.QGroupBox("Book browsing", self)
+        self.BookGroupBox.move(20, 60)
+        self.BookGroupBox.setFixedSize(460, 130)
+
+        self.BookLayout = QtWidgets.QGridLayout(self.BookGroupBox)
+
+        self.BookCommand = QtWidgets.QLineEdit(self.BookGroupBox)
+        self.BookCommand.setFixedWidth(180)
+        self.BookCommand.setPlaceholderText("Enter correct string to search")
+
+        self.Search = QtWidgets.QPushButton("Search", self.BookGroupBox)
+
+        self.BookStatus = QtWidgets.QLabel("BOOK STATUS", self, alignment=QtCore.Qt.AlignCenter)
+        self.BookStatus.setStyleSheet("QLabel { border: 1.5px solid black; font-weight: bold; color : black; }")
+
+        self.ViewButton = QtWidgets.QPushButton("View book", self.BookGroupBox)
+        self.DownloadButton = QtWidgets.QPushButton("Download book", self.BookGroupBox)
+        self.Logout = QtWidgets.QPushButton("Logout!", self.BookGroupBox)
+
+        self.BookLayout.addWidget(self.BookCommand, 0, 0)
+        self.BookLayout.addWidget(self.Search, 0, 1)
+        self.BookLayout.addWidget(self.BookStatus, 0, 2)
+        self.BookLayout.addWidget(self.ViewButton, 1, 0)
+        self.BookLayout.addWidget(self.DownloadButton, 1, 1)
+        self.BookLayout.addWidget(self.Logout, 1, 2)
+
+        self.BookGroupBox.setLayout(self.BookLayout)
+
+        self.BookGroupBox.setVisible(True)
 
     @QtCore.Slot()
     def add_click_behavior(self, obj, func):
