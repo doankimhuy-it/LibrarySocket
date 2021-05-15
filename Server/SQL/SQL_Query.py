@@ -1,11 +1,13 @@
-import mysql.connector
-HOST = '127.0.0.1'
+import sqlite3
+HOST = 'localhost'
 DB = 'LIBRARYSOCKET'
 USERNAME = 'sa'
 PASSW = '1234'
-conn = mysql.connector.connect(user=USERNAME, password=PASSW, host = HOST, database= DB)
+print(1)
+conn = sqlite3.connect(user=USERNAME, password=PASSW, host = HOST, port=5939, database= DB)
+print(2)
 cursor = conn.cursor()
-cursor.execute("SELECT DATABASE()")
+cursor.execute("SELECT USERNAME FROM ACCOUNTS")
 data = cursor.fetchone()
 print("Connection established to: ",data)
 conn.close()
