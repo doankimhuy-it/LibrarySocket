@@ -53,18 +53,18 @@ def click_signupbutton(window):
     subthread.start()
 
 
-def click_signinbutton(window):
+def click_loginbutton(window):
     if client_connection.connect_status != client_connection.StatusCode.CONNECTED:
         # show error msg
         errmsg = window.showError()
         errmsg.exec_()
         return -1
 
-    string_sent = '01-' + window.UsernameBox.text() + '-' + window.PasswordBox.text()
+    string_sent = 'login-' + window.UsernameBox.text() + '-' + window.PasswordBox.text()
     client_connection.send_message(string_sent)
 
     recv_msg = client_connection.mainsock.recv(1024).decode('utf8')
-    if recv_msg == '01-error':
+    if recv_msg == 'login-error':
         MessBox = QtWidgets.QMessageBox(window)
         MessBox.setText('Username already existed')
         MessBox.exec_()
@@ -78,22 +78,20 @@ def click_searchbutton(window):
         errmsg = window.showError()
         errmsg.exec_()
         return -1
-    if window.BookCommandDropBox.currentText() != 'F_ID':
-        string_sent = window.BookCommandDropBox.currentText() + ' ' + '"' \
-            + window.BookCommandText.text() + '"'
-        client_connection.send_message(string_sent)
-    else:
-        string_sent = window.BookCommandDropBox.currentText() + ' ' \
-            + window.BookCommandText.text()
-        client_connection.send_message(string_sent)
+
+    string_sent =  'search-' + window.BookCommandDropBox.currentText()[2:] + '-' \
+        + window.BookCommandText.text()
+    client_connection.send_message(string_sent)
 
     recv_msg = client_connection.mainsock.recv(1024).decode('utf8')
-    if recv_msg == 'ok':
+    if recv_msg == 'search-ok':
         client_connection.book_status.BOOK_AVAILABLE
 
 
 def click_viewbutton(window):
-    client_connection.send_message('04')
+    string_sent = 'view-' + window.BookCommandDropBox.currentText()[2:] + '-' \
+        + window.BookCommandText.text()
+    client_connection.send_message(string_sent)
 
     data_stream = io.BytesIO()
     data = client_connection.mainsock.recv(1024)
@@ -116,7 +114,9 @@ def click_viewbutton(window):
 
 
 def click_downloadbutton(window):
-    client_connection.send_message('05')
+    string_sent = 'down-' + window.BookCommandDropBox.currentText()[2:] + '-' \
+        + window.BookCommandText.text()
+    client_connection.send_message(string_sent)
 
     data_stream = io.BytesIO()
     data = client_connection.mainsock.recv(1024)
@@ -187,7 +187,7 @@ def connect_GUI_feature(window):
     window.timer_update_GUI.timeout.connect(lambda: update_GUI(window))
     window.add_click_behavior(window.ConnectButton, lambda: click_connectbutton(window))
     window.add_click_behavior(window.SignupButton, lambda: click_signupbutton(window))
-    window.add_click_behavior(window.SigninButton, lambda: click_signinbutton(window))
+    window.add_click_behavior(window.SigninButton, lambda: click_loginbutton(window))
     window.add_click_behavior(window.SearchButton, lambda: click_searchbutton(window))
     window.add_click_behavior(window.ViewButton, lambda: click_viewbutton(window))
     window.add_click_behavior(window.DownloadButton, lambda: click_downloadbutton(window))

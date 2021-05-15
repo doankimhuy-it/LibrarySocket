@@ -39,11 +39,11 @@ class SignUpDialog(QtWidgets.QDialog):
         username = self.UsernameBox.text()
         password = self.PasswordBox.text()
         if len(username) >= 6 and len(password >= 6):
-            string_sent = '02-' + username + '-' + password 
+            string_sent = 'signup-' + username + '-' + password 
         self.sock.sendall(string_sent.encode('utf-8'))
         recv_data = self.sock.recv(1024)
         #recv_data = '02-ok'.encode('utf-8')
-        if recv_data.decode('utf-8') == '02-ok':
+        if recv_data.decode('utf-8') == 'signup-ok':
             MessBox = QtWidgets.QMessageBox(self)
             MessBox.setText('Successful')
             MessBox.exec_()
