@@ -6,11 +6,11 @@
   Server trả lời: login-ok hoặc login-error
 - Đăng ký: signup-username-password
   Server trả lời: signup-ok hoặc signup-error
-- Tra cứu: search-ID-xxxx hoặc search-name-xxxx xxxx (khỏi cần dấu ngoặc kép) hoặc search-type-xxx xxx hoặc search-author-xxxx xxxx
+- Tra cứu: search-ID-xxxx hoặc search-Name-xxxx xxxx (khỏi cần dấu ngoặc kép) hoặc search-Type-xxx xxx hoặc search-Author-xxxx xxxx
   Server trả lời: search-ok hoặc search-error
-- Xem sách (sách đã tra cứu): view-ID-xxxx hoặc view-name-xxxx xxxx hoặc view-type-xxx xxx hoặc view-author-xxxx xxxx
+- Xem sách (sách đã tra cứu): view-ID-xxxx hoặc view-Name-xxxx xxxx hoặc view-Type-xxx xxx hoặc view-Author-xxxx xxxx
   Server gửi toàn bộ nội dung
-- Tải sách (sách đã tra cứu): view-ID-xxxx hoặc view-name-xxxx xxxx hoặc view-type-xxx xxx hoặc view-author-xxxx xxxx
+- Tải sách (sách đã tra cứu): view-ID-xxxx hoặc view-Name-xxxx xxxx hoặc view-Type-xxx xxx hoặc view-Author-xxxx xxxx
   Server gửi toàn bộ nội dung
 - Logout: không gửi message về server
 
