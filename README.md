@@ -10,7 +10,7 @@
   Server trả lời: search-ok hoặc search-error
 - Xem sách (sách đã tra cứu): view-ID-xxxx hoặc view-Name-xxxx xxxx hoặc view-Type-xxx xxx hoặc view-Author-xxxx xxxx
   Server gửi toàn bộ nội dung
-- Tải sách (sách đã tra cứu): view-ID-xxxx hoặc view-Name-xxxx xxxx hoặc view-Type-xxx xxx hoặc view-Author-xxxx xxxx
+- Tải sách (sách đã tra cứu): down-ID-xxxx hoặc down-Name-xxxx xxxx hoặc down-Type-xxx xxx hoặc down-Author-xxxx xxxx
   Server gửi toàn bộ nội dung
 - Logout: không gửi message về server
 
