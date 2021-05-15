@@ -5,24 +5,22 @@ GO
 ---------------------
 CREATE TABLE ACCOUNTS 
 (
-	USERNAME nchar(20),
-    PASSW nchar(50),
+	USERNAME varchar(20),
+    PASSW varchar(50),
 	PRIMARY KEY (USERNAME)
 )
 
 CREATE TABLE BOOKS 
 (
 	ID int,
-    BOOK_NAME nchar(50),
-    CATEGORY nchar(50),
-    AUTHORS nchar(100),
+    BOOK_NAME nvarchar(50),
+    CATEGORY nvarchar(50),
+    AUTHORS nvarchar(100),
     RELEASEYEAR int,
-    LINK nchar(50),
+    LINK varchar(50),
 	PRIMARY KEY (ID)
 )
 --------------------
-USE QLDT1
-DROP DATABASE LIBRARYSOCKET
 INSERT INTO ACCOUNTS VALUES ('drwpls', '1234')
 INSERT INTO ACCOUNTS VALUES ('account1', '1234')
 
