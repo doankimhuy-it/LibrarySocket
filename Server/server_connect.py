@@ -91,19 +91,23 @@ class ServerConnection:
 
     def handle_message(self, _sock, message):
         message = message.decode('utf-8')
-        feature_code = message[:2]
-        command = message[2:]
-        logging.debug('feature_code and command is {} : {}'.format(feature_code, command))
-        # if (feature_code not in FEATURE_CODE):
-        #     # some error happen
-        #     return -1
-        # # send command to correct function
-        # # do the task and answer the client
-        # logging.debug('FEATURE_CODE[feature_code] is {}'.format(FEATURE_CODE[feature_code]))
-        # task_obj = FEATURE_CODE[feature_code](_sock, command)
-        # result_code = task_obj.do_task()
-        # # send response to client
-
+        request_code = message[:2]    
+        logging.debug('request code is {}'.format(request_code))
+        if request_code == '01':
+            # implement sql lookup and respond for sign-in request
+            pass
+        elif request_code == '02':
+            # implement sql lookup and respond for sign-up request
+            pass
+        elif request_code == '04':
+            # implement sql lookup and respond for viewing request
+            pass
+        elif request_code == '05':
+            # implement sql lookup and respond for downloading request
+            pass
+        elif request_code == 'F_':
+            # implement sql lookup and respond for searching book request
+            pass
 
 if __name__ == '__main__':
     host = '0.0.0.0'    # all network interface

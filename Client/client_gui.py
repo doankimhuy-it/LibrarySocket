@@ -37,7 +37,7 @@ class ClientWindow(QtWidgets.QMainWindow):
         # Connect status
         self.ConnectStatusBox = QtWidgets.QLabel("DISCONNECTED!", self, alignment=QtCore.Qt.AlignCenter)
         self.ConnectStatusBox.move(10 + self.ConnectButton.geometry().x() + self.ConnectButton.width(), 20)
-        self.ConnectStatusBox.setStyleSheet("QLabel { border: 1.5px solid black; font-weight: bold; color : red; }")
+        self.ConnectStatusBox.setStyleSheet("border: 1.5px solid black; font-weight: bold; color : red;")
 
         # Login/Logout group box
         self.LogGroupBox = QtWidgets.QGroupBox("Login/Sign up", self)
@@ -52,7 +52,7 @@ class ClientWindow(QtWidgets.QMainWindow):
         self.UsernameRegex = QtCore.QRegularExpression("[A-Za-z0-9._]+")
         self.UsernameValidator = QtGui.QRegularExpressionValidator(self.UsernameRegex)
         self.UsernameBox.setValidator(self.UsernameValidator)
-        self.UsernameBox.setFixedWidth(300)
+        self.UsernameBox.setFixedWidth(250)
         self.LogLayout.addWidget(self.label_username, 0, 0)
         self.LogLayout.addWidget(self.UsernameBox, 0, 1)
 
@@ -62,26 +62,23 @@ class ClientWindow(QtWidgets.QMainWindow):
         self.PasswordRegex = QtCore.QRegularExpression("[^-\s]+")
         self.PasswordValidator = QtGui.QRegularExpressionValidator(self.PasswordRegex)
         self.PasswordBox.setValidator(self.PasswordValidator)
-        self.PasswordBox.setFixedWidth(300)
+        self.PasswordBox.setFixedWidth(250)
         self.LogLayout.addWidget(self.label_password, 1, 0)
         self.LogLayout.addWidget(self.PasswordBox, 1, 1)
 
-        # Button layout to store two
-        self.ButtonLayout = QtWidgets.QGridLayout(self.LogGroupBox)
-        self.LogLayout.addLayout(self.ButtonLayout, 2, 1)
-
         # Sign-up button
-        self.SignupButton = QtWidgets.QPushButton("Sign up", self.LogGroupBox)
+        self.SignupButton = QtWidgets.QPushButton("No account?\nSign up", self.LogGroupBox)
         self.SignupButton.setFixedSize(80, 40)
-        self.ButtonLayout.addWidget(self.SignupButton, 0, 0)
+        self.LogLayout.addWidget(self.SignupButton, 2, 0)
+
         # Login button
         self.LoginButton = QtWidgets.QPushButton("Login", self.LogGroupBox)
         self.LoginButton.setFixedSize(80, 40)
-        self.ButtonLayout.addWidget(self.LoginButton, 0, 1)
+        self.LogLayout.addWidget(self.LoginButton, 2, 1, QtCore.Qt.AlignCenter)
 
         self.LogGroupBox.setLayout(self.LogLayout)
 
-        self.LogGroupBox.setVisible(False)
+        self.LogGroupBox.setVisible(True)
 
         # Book group box
         self.BookGroupBox = QtWidgets.QGroupBox("Book browsing", self)
@@ -90,29 +87,36 @@ class ClientWindow(QtWidgets.QMainWindow):
 
         self.BookLayout = QtWidgets.QGridLayout(self.BookGroupBox)
 
-        self.BookCommand = QtWidgets.QLineEdit(self.BookGroupBox)
-        self.BookCommand.setFixedWidth(180)
-        self.BookCommand.setPlaceholderText("Enter correct string to search")
+        self.BookCommandDropBox = QtWidgets.QComboBox(self.BookGroupBox)
+        self.BookCommandDropBox.addItems(['F_ID', 'F_Name', 'F_Type', 'F_Author'])
 
-        self.Search = QtWidgets.QPushButton("Search", self.BookGroupBox)
+        self.BookCommandText = QtWidgets.QLineEdit(self.BookGroupBox)
+        self.BookCommandText.setFixedWidth(170)
+        self.BookCommandText.setPlaceholderText("Enter correct string to search")
+
+        self.SearchButton = QtWidgets.QPushButton("SearchButton", self.BookGroupBox)
 
         self.BookStatus = QtWidgets.QLabel("BOOK STATUS", self, alignment=QtCore.Qt.AlignCenter)
-        self.BookStatus.setStyleSheet("QLabel { border: 1.5px solid black; font-weight: bold; color : black; }")
+        self.BookStatus.setStyleSheet("border: 1.5px solid black; font-weight: bold; color: black;")
+        self.BookStatus.setFixedWidth(100)
 
         self.ViewButton = QtWidgets.QPushButton("View book", self.BookGroupBox)
         self.DownloadButton = QtWidgets.QPushButton("Download book", self.BookGroupBox)
-        self.Logout = QtWidgets.QPushButton("Logout!", self.BookGroupBox)
+        self.LogoutButton = QtWidgets.QPushButton("LOGOUT!", self.BookGroupBox)
+        self.LogoutButton.setFixedHeight(60)
+        self.LogoutButton.setStyleSheet('color: red; font-weight: bold; font-size: 20px;')
 
-        self.BookLayout.addWidget(self.BookCommand, 0, 0)
-        self.BookLayout.addWidget(self.Search, 0, 1)
-        self.BookLayout.addWidget(self.BookStatus, 0, 2)
+        self.BookLayout.addWidget(self.BookCommandDropBox, 0, 0)
+        self.BookLayout.addWidget(self.BookCommandText, 0, 1)
+        self.BookLayout.addWidget(self.SearchButton, 0, 2)
+        self.BookLayout.addWidget(self.BookStatus, 0, 3)
         self.BookLayout.addWidget(self.ViewButton, 1, 0)
         self.BookLayout.addWidget(self.DownloadButton, 1, 1)
-        self.BookLayout.addWidget(self.Logout, 1, 2)
+        self.BookLayout.addWidget(self.LogoutButton, 1, 2, 1, 2)
 
         self.BookGroupBox.setLayout(self.BookLayout)
 
-        self.BookGroupBox.setVisible(True)
+        self.BookGroupBox.setVisible(False)
 
     @QtCore.Slot()
     def add_click_behavior(self, obj, func):
@@ -131,17 +135,37 @@ class ClientWindow(QtWidgets.QMainWindow):
         if StatusCode == self.StatusCode.CONNECTED:
             self.ConnectButton.setText('Disconnect!')
             self.ConnectStatusBox.setText('CONNECTED!')
-            self.ConnectStatusBox.setStyleSheet("QLabel { border: 1.5px solid black;font-weight: bold; color : green; }")
+            self.ConnectStatusBox.setStyleSheet("border: 1.5px solid black; font-weight: bold; color: green;")
 
         if StatusCode == self.StatusCode.DISCONNECTED:
             self.ConnectButton.setText('Connect!')
             self.ConnectStatusBox.setText('DISCONNECTED!')
-            self.ConnectStatusBox.setStyleSheet("QLabel { border: 1.5px solid black;font-weight: bold; color : red; }")
+            self.ConnectStatusBox.setStyleSheet("border: 1.5px solid black; font-weight: bold; color: red;")
 
         if StatusCode == self.StatusCode.TIMEOUT:
             self.ConnectButton.setText('Connect!')
             self.ConnectStatusBox.setText('TIMED OUT!')
-            self.ConnectStatusBox.setStyleSheet("QLabel { border: 1.5px solid black;font-weight: bold; color : brown ; }")
+            self.ConnectStatusBox.setStyleSheet("border: 1.5px solid black; font-weight: bold; color: brown;")
+
+        if StatusCode == self.StatusCode.LOGGED_IN:
+            self.LogGroupBox.setVisible(False)
+            self.BookGroupBox.setVisible(True)
+
+        if StatusCode == self.StatusCode.LOGGED_OUT:
+            self.LogGroupBox.setVisible(True)
+            self.BookGroupBox.setVisible(False)
+
+        if StatusCode == self.StatusCode.BOOK_UNAVAILABLE:
+            self.ViewButton.setVisible(False)
+            self.DownloadButton.setVisible(False)
+            self.BookStatus.setText('AVAILABLE')
+            self.BookStatus.setStyleSheet("border: 1.5px solid black; font-weight: bold; color: green;")
+
+        if StatusCode == self.StatusCode.BOOK_UNAVAILABLE:
+            self.ViewButton.setVisible(True)
+            self.DownloadButton.setVisible(True)
+            self.BookStatus.setText('UNAVAILABLE')
+            self.BookStatus.setStyleSheet("border: 1.5px solid black; font-weight: bold; color: red;")
 
     def showError(self, error='NO CONNECTIONS', message='Please connect to server first'):
         msg = QtWidgets.QMessageBox()
@@ -157,7 +181,10 @@ class ClientWindow(QtWidgets.QMainWindow):
         DISCONNECTED = auto(),
         CONNECTING = auto(),
         TIMEOUT = auto(),
-        LOGGED_IN = auto()
+        LOGGED_IN = auto(),
+        LOGGED_OUT = auto(),
+        BOOK_UNAVAILABLE = auto(),
+        BOOK_AVAILABLE = auto()
 
 
 if __name__ == "__main__":

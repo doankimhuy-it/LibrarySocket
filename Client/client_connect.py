@@ -9,6 +9,8 @@ logging.basicConfig(level=logging.DEBUG)
 class ClientConnect:
     def __init__(self):
         self.connect_status = self.StatusCode.DISCONNECTED
+        self.login_status = self.StatusCode.LOGGED_OUT
+        self.book_status = self.StatusCode.BOOK_UNAVAILABLE
         self.host = '0.0.0.0'
         self.port = 0
         self.mainsock = 0
@@ -47,7 +49,11 @@ class ClientConnect:
         CONNECTED = auto(),
         DISCONNECTED = auto(),
         CONNECTING = auto(),
-        TIMEOUT = auto()
+        TIMEOUT = auto(),
+        LOGGED_IN = auto(),
+        LOGGED_OUT = auto(),
+        BOOK_UNAVAILABLE = auto(),
+        BOOK_AVAILABLE = auto()
 
 
 if __name__ == '__main__':

@@ -8,10 +8,12 @@
   Server trả lời: 02-ok hoặc 02-error
 - Tra cứu:
   Xem cú pháp bên dưới
+  Server trả lời: ok hoặc error
 - Xem sách: 04 (sách đã tra cứu)
   Server gửi toàn bộ nội dung
 - Tải sách: 05 (sách đã tra cứu)
   Server gửi toàn bộ nội dung
+- Logout: không gửi message về server
 - Thoát: exit
 
 ## Cấu trúc file
