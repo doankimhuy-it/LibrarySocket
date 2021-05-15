@@ -1,6 +1,7 @@
 import selectors    # working with multi-clients
 import socket       # socket
 import logging
+import SQL_Query
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -10,6 +11,7 @@ class ServerConnection:
         self.sel = selectors.DefaultSelector()           # Monitor will hand all of connections
         self.host = host
         self.port = port
+        self.SQL = SQL_Query.SQL_CONNECT('127.0.0.1', 'LIBRRARYSOCKET', 'sa', '1234')
 
     def start_listen(self):
         self.server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # USE TCP/IP Connection
@@ -19,6 +21,7 @@ class ServerConnection:
         # accept 10 connections
         self.server_sock.listen(10)
         self.connect_status = 1  # set to start listening flag, 1 is one socket (server_sock)
+
         logging.debug('Listening on {} : {}'.format(self.host, self.port))
         while self.connect_status:
             try:
@@ -92,12 +95,23 @@ class ServerConnection:
     def handle_message(self, _sock, message):
         message = message.decode('utf-8')
         request_code = message[:2]    
+        message = message[2:]
+
         logging.debug('request code is {}'.format(request_code))
         if request_code == '01':
             # implement sql lookup and respond for sign-in request
-            pass
+            username, passw = message.split('-')
+            if self.SQL.login(username, passw) == True:
+                self.server_sock.sendall('01-ok'.encode('utf-8'))
+            else:
+                self.server_sock.sendall('01-error'.encode('utf-8'))
         elif request_code == '02':
             # implement sql lookup and respond for sign-up request
+            username, passw = message.split('-')
+            if self.SQL.add_user(username, password) == True:
+                self.server_sock.sendall('01-ok'.encode('utf-8'))
+            else:
+                self.server_sock.sendall('01-error'.encode('utf-8'))
             pass
         elif request_code == '04':
             # implement sql lookup and respond for viewing request
