@@ -1,8 +1,11 @@
 import sys
 import threading
 import logging
+from PySide6 import QtCore, QtWidgets, QtGui
 import client_gui
 import client_connect
+import signup
+import io
 
 client_connection = client_connect.ClientConnect()
 
@@ -38,6 +41,111 @@ def click_connectbutton(window):
         window.timer_update_GUI.stop()
 
 
+def click_signupbutton(window):
+    if client_connection.connect_status != client_connection.Status_Code.CONNECTED:
+        # show error msg
+        errmsg = window.showError()
+        errmsg.exec_()
+        return -1
+
+    signup_dialog = signup.SignUpDialog(client_connection.mainsock)
+    subthread = threading.Thread(target=signup_dialog.exec_(), args=())
+    subthread.start()
+
+
+def click_signinbutton(window):
+    if client_connection.connect_status != client_connection.StatusCode.CONNECTED:
+        # show error msg
+        errmsg = window.showError()
+        errmsg.exec_()
+        return -1
+
+    string_sent = '01-' + window.UsernameBox.text() + '-' + window.PasswordBox.text()
+    client_connection.send_message(string_sent)
+
+    recv_msg = client_connection.mainsock.recv(1024).decode('utf8')
+    if recv_msg == '01-error':
+        MessBox = QtWidgets.QMessageBox(window)
+        MessBox.setText('Username already existed')
+        MessBox.exec_()
+    else:
+        client_connection.login_status = client_connection.StatusCode.LOGGED_IN
+
+
+def click_searchbutton(window):
+    if client_connection.connect_status != client_connection.StatusCode.CONNECTED:
+        # show error msg
+        errmsg = window.showError()
+        errmsg.exec_()
+        return -1
+    if window.BookCommandDropBox.currentText() != 'F_ID':
+        string_sent = window.BookCommandDropBox.currentText() + ' ' + '"' \
+            + window.BookCommandText.text() + '"'
+        client_connection.send_message(string_sent)
+    else:
+        string_sent = window.BookCommandDropBox.currentText() + ' ' \
+            + window.BookCommandText.text()
+        client_connection.send_message(string_sent)
+
+    recv_msg = client_connection.mainsock.recv(1024).decode('utf8')
+    if recv_msg == 'ok':
+        client_connection.book_status.BOOK_AVAILABLE
+
+
+def click_viewbutton(window):
+    client_connection.send_message('04')
+
+    data_stream = io.BytesIO()
+    data = client_connection.mainsock.recv(1024)
+    while data and data[-4:] != b'////':
+        # logging.debug('data is {}'.format(data))
+        data_stream.write(data)
+        data = client_connection.mainsock.recv(1024)
+
+    data_stream.write(data[:-4])
+
+    view_diag = QtWidgets.QDialog(window)
+    view_diag.setWindowTitle('Book content')
+    view_diag.setFixedSize(200, 200)
+
+    book_content = QtWidgets.QTextEdit(view_diag)
+    book_content.move(20, 20)
+    book_content.setFixedSize(180, 180)
+
+    book_content.setText(str(data_stream.getvalue()))
+
+
+def click_downloadbutton(window):
+    client_connection.send_message('05')
+
+    data_stream = io.BytesIO()
+    data = client_connection.mainsock.recv(1024)
+    while data and data[-4:] != b'////':
+        # logging.debug('data is {}'.format(data))
+        data_stream.write(data)
+        data = client_connection.mainsock.recv(1024)
+
+    data_stream.write(data[:-4])
+
+    file_filter = 'Text Document (*.txt)'
+    response = QtWidgets.QFileDialog.getSaveFileName(
+        parent=window,
+        caption='Save as',
+        filter=file_filter,
+    )
+    print(response[0])
+
+    filename = response[0]
+    if filename:
+        stream = open(filename, 'wb')
+        stream.write(data_stream.getvalue())
+        stream.close()
+
+
+def click_logoutbutton(window):
+    client_connection.login_status = client_connection.StatusCode.LOGGED_OUT
+
+
 def update_GUI(window):
     if (client_connection.connect_status == client_connection.StatusCode.CONNECTING):
         window.change_GUI_status(window.StatusCode.CONNECTING)
@@ -56,6 +164,16 @@ def update_GUI(window):
         # sent '00' after every 1000ms to check server's signal
         client_connection.send_message('00')
 
+    if (client_connection.login_status == client_connection.StatusCode.LOGGED_IN):
+        window.change_GUI_status(window.StatusCode.LOGGED_IN)
+    elif (client_connection.login_status == client_connection.StatusCode.LOGGED_OUT):
+        window.change_GUI_status(window.StatusCode.LOGGED_OUT)
+
+    if (client_connection.book_status == client_connection.StatusCode.BOOK_AVAILABLE):
+        window.change_GUI_status(window.StatusCode.BOOK_AVAILABLE)
+    elif (client_connection.login_status == client_connection.StatusCode.BOOK_UNAVAILABLE):
+        window.change_GUI_status(window.StatusCode.BOOK_UNAVAILABLE)
+
 
 def on_quit():
     if client_connection.connect_status == client_connection.StatusCode.CONNECTING \
@@ -68,6 +186,12 @@ def connect_GUI_feature(window):
     app.lastWindowClosed.connect(on_quit)
     window.timer_update_GUI.timeout.connect(lambda: update_GUI(window))
     window.add_click_behavior(window.ConnectButton, lambda: click_connectbutton(window))
+    window.add_click_behavior(window.SignupButton, lambda: click_signupbutton(window))
+    window.add_click_behavior(window.SigninButton, lambda: click_signinbutton(window))
+    window.add_click_behavior(window.SearchButton, lambda: click_searchbutton(window))
+    window.add_click_behavior(window.ViewButton, lambda: click_viewbutton(window))
+    window.add_click_behavior(window.DownloadButton, lambda: click_downloadbutton(window))
+    window.add_click_behavior(window.LogoutButton, lambda: click_logoutbutton(window))
 
 
 if __name__ == '__main__':
