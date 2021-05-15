@@ -2,19 +2,17 @@
 
 ## Cấu trúc message:
 
-- Đăng nhập: 01-username-password
-  Server trả lời: 01-ok hoặc 01-error
-- Đăng ký: 02-username-password
-  Server trả lời: 02-ok hoặc 02-error
-- Tra cứu:
-  Xem cú pháp bên dưới
-  Server trả lời: ok hoặc error
-- Xem sách: 04 (sách đã tra cứu)
+- Đăng nhập: login-username-password
+  Server trả lời: login-ok hoặc login-error
+- Đăng ký: signup-username-password
+  Server trả lời: signup-ok hoặc signup-error
+- Tra cứu: search-ID-xxxx hoặc search-name-xxxx xxxx (khỏi cần dấu ngoặc kép) hoặc search-type-xxx xxx hoặc search-author-xxxx xxxx
+  Server trả lời: search-ok hoặc search-error
+- Xem sách (sách đã tra cứu): view-ID-xxxx hoặc view-name-xxxx xxxx hoặc view-type-xxx xxx hoặc view-author-xxxx xxxx
   Server gửi toàn bộ nội dung
-- Tải sách: 05 (sách đã tra cứu)
+- Tải sách (sách đã tra cứu): view-ID-xxxx hoặc view-name-xxxx xxxx hoặc view-type-xxx xxx hoặc view-author-xxxx xxxx
   Server gửi toàn bộ nội dung
 - Logout: không gửi message về server
-- Thoát: exit
 
 ## Cấu trúc file
 
