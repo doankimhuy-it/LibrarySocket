@@ -95,24 +95,23 @@ class ServerConnection:
     def handle_message(self, _sock, message):
         message = message.decode('utf-8')
         request_code = message[:2]    
-        message = message[2:]
+        command = message[2:]
 
         logging.debug('request code is {}'.format(request_code))
         if request_code == '01':
             # implement sql lookup and respond for sign-in request
-            username, passw = message.split('-')
+            username, passw = command.split('-')
             if self.SQL.login(username, passw) == True:
                 self.server_sock.sendall('01-ok'.encode('utf-8'))
             else:
                 self.server_sock.sendall('01-error'.encode('utf-8'))
         elif request_code == '02':
             # implement sql lookup and respond for sign-up request
-            username, passw = message.split('-')
+            username, passw = command.split('-')
             if self.SQL.add_user(username, password) == True:
                 self.server_sock.sendall('01-ok'.encode('utf-8'))
             else:
                 self.server_sock.sendall('01-error'.encode('utf-8'))
-            pass
         elif request_code == '04':
             # implement sql lookup and respond for viewing request
             pass
