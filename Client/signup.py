@@ -38,8 +38,12 @@ class SignUpDialog(QtWidgets.QDialog):
         # remember to check username and password condition before sent register request
         username = self.UsernameBox.text()
         password = self.PasswordBox.text()
-        if len(username) >= 6 and len(password >= 6):
-            string_sent = 'signup-' + username + '-' + password 
+        if len(username) < 6 or len(password) < 6:
+            MessBox = QtWidgets.QMessageBox(self)
+            MessBox.setText('Username and password length must >= 6')
+            MessBox.exec_()
+            return
+        string_sent = 'signup-' + username + '-' + password 
         self.sock.sendall(string_sent.encode('utf-8'))
         recv_data = self.sock.recv(1024)
         #recv_data = '02-ok'.encode('utf-8')

@@ -47,7 +47,7 @@ class SQL_CONNECT:
         else:
             value = '%' + value + '%'
             books = self.cursor.execute('SELECT ID, BOOK_NAME, CATEGORY, AUTHORS, RELEASEYEAR FROM BOOKS \
-            WHERE AUTHORS =?', value).fetchall()
+            WHERE AUTHORS LIKE ?', value).fetchall()
             return books
 
     def list_user(self):

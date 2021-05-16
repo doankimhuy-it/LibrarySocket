@@ -11,7 +11,7 @@ class ServerConnection:
         self.sel = selectors.DefaultSelector()           # Monitor will hand all of connections
         self.host = host
         self.port = port
-        self.SQL = SQL_Query.SQL_CONNECT('localhost', 'LIBRRARYSOCKET', 'sa', '1234')
+        self.SQL = SQL_Query.SQL_CONNECT('localhost', 'LIBRARYSOCKET', 'sa', '1234')
 
     def start_listen(self):
         self.server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # USE TCP/IP Connection
@@ -93,25 +93,28 @@ class ServerConnection:
             pass
 
     def handle_message(self, _sock, message):
-        message = message.decode('utf-8')
-        request_code = message[:2]    
-        command = message[2:]
+        message = message.decode('utf-8').split('-')
+        request_code = message[0]    
+        command = message[1:]
 
         logging.debug('request code is {}'.format(request_code))
-        if request_code == '01':
+        if request_code == 'signup':
             # implement sql lookup and respond for sign-in request
-            username, passw = command.split('-')
-            if self.SQL.login(username, passw) == True:
-                self.server_sock.sendall('01-ok'.encode('utf-8'))
-            else:
-                self.server_sock.sendall('01-error'.encode('utf-8'))
-        elif request_code == '02':
-            # implement sql lookup and respond for sign-up request
-            username, passw = command.split('-')
+            username = command[0]
+            password = command[1]
             if self.SQL.add_user(username, password) == True:
-                self.server_sock.sendall('01-ok'.encode('utf-8'))
+                _sock.sendall('signup-ok'.encode('utf-8'))
+                logging.debug('signup-ok')
             else:
-                self.server_sock.sendall('01-error'.encode('utf-8'))
+                _sock.sendall('signup-error'.encode('utf-8'))
+                logging.debug('signup-fail')
+        elif request_code == 'login':
+            # implement sql lookup and respond for sign-up request
+            username, password = command.split('-')
+            if self.SQL.add_user(username, password) == True:
+                _sock.sendall('login-ok'.encode('utf-8'))
+            else:
+                _sock.sendall('login-error'.encode('utf-8'))
         elif request_code == '04':
             # implement sql lookup and respond for viewing request
             pass

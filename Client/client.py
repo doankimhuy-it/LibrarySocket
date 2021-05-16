@@ -42,7 +42,7 @@ def click_connectbutton(window):
 
 
 def click_signupbutton(window):
-    if client_connection.connect_status != client_connection.Status_Code.CONNECTED:
+    if client_connection.connect_status != client_connection.StatusCode.CONNECTED:
         # show error msg
         errmsg = window.showError()
         errmsg.exec_()
@@ -187,7 +187,7 @@ def connect_GUI_feature(window):
     window.timer_update_GUI.timeout.connect(lambda: update_GUI(window))
     window.add_click_behavior(window.ConnectButton, lambda: click_connectbutton(window))
     window.add_click_behavior(window.SignupButton, lambda: click_signupbutton(window))
-    window.add_click_behavior(window.SigninButton, lambda: click_loginbutton(window))
+    window.add_click_behavior(window.LoginButton, lambda: click_loginbutton(window))
     window.add_click_behavior(window.SearchButton, lambda: click_searchbutton(window))
     window.add_click_behavior(window.ViewButton, lambda: click_viewbutton(window))
     window.add_click_behavior(window.DownloadButton, lambda: click_downloadbutton(window))
