@@ -11,7 +11,7 @@ class ServerConnection:
         self.sel = selectors.DefaultSelector()           # Monitor will hand all of connections
         self.host = host
         self.port = port
-        self.SQL = SQL_Query.SQL_CONNECT('127.0.0.1', 'LIBRRARYSOCKET', 'sa', '1234')
+        self.SQL = SQL_Query.SQL_CONNECT('localhost', 'LIBRRARYSOCKET', 'sa', '1234')
 
     def start_listen(self):
         self.server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # USE TCP/IP Connection
