@@ -116,9 +116,9 @@ class ServerConnection:
                 _sock.sendall('login-ok'.encode('utf-8'))
             else:
                 _sock.sendall('login-error'.encode('utf-8'))
-        elif request_code == '04':
-            # implement sql lookup and respond for viewing request
-            pass
+        elif request_code == 'search':
+            listbook = self.SQL.get_list_book(command[0], int(command[1]))
+
         elif request_code == '05':
             # implement sql lookup and respond for downloading request
             pass
