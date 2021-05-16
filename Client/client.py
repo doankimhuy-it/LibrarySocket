@@ -66,7 +66,7 @@ def click_loginbutton(window):
     recv_msg = client_connection.mainsock.recv(1024).decode('utf8')
     if recv_msg == 'login-error':
         MessBox = QtWidgets.QMessageBox(window)
-        MessBox.setText('Username already existed')
+        MessBox.setText('Incorrect username or password')
         MessBox.exec_()
     else:
         client_connection.login_status = client_connection.StatusCode.LOGGED_IN

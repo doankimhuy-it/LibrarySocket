@@ -110,8 +110,9 @@ class ServerConnection:
                 logging.debug('signup-fail')
         elif request_code == 'login':
             # implement sql lookup and respond for sign-up request
-            username, password = command.split('-')
-            if self.SQL.add_user(username, password) == True:
+            username = command[0]
+            password = command[1]
+            if self.SQL.login(username, password) == True:
                 _sock.sendall('login-ok'.encode('utf-8'))
             else:
                 _sock.sendall('login-error'.encode('utf-8'))
