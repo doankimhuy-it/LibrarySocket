@@ -39,7 +39,6 @@ class ClientWindow(QtWidgets.QMainWindow):
         self.ConnectStatusBox.move(10 + self.ConnectButton.geometry().x() + self.ConnectButton.width(), 20)
         self.ConnectStatusBox.setStyleSheet("border: 1.5px solid black; font-weight: bold; color : red;")
 
-    def login_gui(self, isEnabled):
         # Login/Logout group box
         self.LogGroupBox = QtWidgets.QGroupBox("Login/Sign up", self)
         self.LogGroupBox.move(20, 60)
@@ -83,9 +82,6 @@ class ClientWindow(QtWidgets.QMainWindow):
 
         self.LogGroupBox.setLayout(self.LogLayout)
 
-        self.LogGroupBox.setVisible(isEnabled)
-
-    def bookbrowsing_gui(self, isEnabled):
         # Book group box
         self.BookGroupBox = QtWidgets.QGroupBox("Book browsing", self)
         self.BookGroupBox.move(10, 60)
@@ -124,7 +120,8 @@ class ClientWindow(QtWidgets.QMainWindow):
         self.LogoutButton.setFixedSize(215, 60)
         self.LogoutButton.setStyleSheet('color: red; font-weight: bold; font-size: 20px;')
 
-        self.BookGroupBox.setVisible(isEnabled)
+        self.LogGroupBox.setVisible(True)
+        self.BookGroupBox.setVisible(False)
 
     @QtCore.Slot()
     def add_click_behavior(self, obj, func):
@@ -156,12 +153,12 @@ class ClientWindow(QtWidgets.QMainWindow):
             self.ConnectStatusBox.setStyleSheet("border: 1.5px solid black; font-weight: bold; color: brown;")
 
         if StatusCode == self.StatusCode.LOGGED_IN:
-            self.login_gui(False)
-            self.bookbrowsing_gui(True)
+            self.LogGroupBox.setVisible(False)
+            self.BookGroupBox.setVisible(True)
 
         if StatusCode == self.StatusCode.LOGGED_OUT:
-            self.login_gui(True)
-            self.bookbrowsing_gui(False)
+            self.LogGroupBox.setVisible(True)
+            self.BookGroupBox.setVisible(False)
 
     def showError(self, error='NO CONNECTIONS', message='Please connect to server first'):
         msg = QtWidgets.QMessageBox()
@@ -219,7 +216,5 @@ if __name__ == "__main__":
 
     window = ClientWindow()
     window.show()
-
-    window.login_gui(True)
 
     sys.exit(app.exec_())
