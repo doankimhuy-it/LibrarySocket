@@ -5,6 +5,7 @@ import SQL_Query
 
 logging.basicConfig(level=logging.DEBUG)
 
+
 class ServerConnection:
     def __init__(self, host, port):
         self.connect_status = 0
@@ -12,6 +13,7 @@ class ServerConnection:
         self.host = host
         self.port = port
         self.SQL = SQL_Query.SQL_CONNECT('localhost', 'LIBRARYSOCKET', 'sa', '1234')
+        self.is_loggedin = False
 
     def start_listen(self):
         self.server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # USE TCP/IP Connection
@@ -94,7 +96,7 @@ class ServerConnection:
 
     def handle_message(self, _sock, message):
         message = message.decode('utf-8').split('-')
-        request_code = message[0]    
+        request_code = message[0]
         command = message[1:]
 
         logging.debug('request code is {}'.format(request_code))
@@ -114,17 +116,21 @@ class ServerConnection:
             password = command[1]
             if self.SQL.login(username, password) == True:
                 _sock.sendall('login-ok'.encode('utf-8'))
+                self.is_loggedin = True
             else:
                 _sock.sendall('login-error'.encode('utf-8'))
         elif request_code == 'search':
             listbook = self.SQL.get_list_book(command[0], int(command[1]))
 
-        elif request_code == '05':
+        elif request_code == 'view':
             # implement sql lookup and respond for downloading request
             pass
-        elif request_code == 'F_':
+        elif request_code == 'down':
             # implement sql lookup and respond for searching book request
             pass
+        elif request_code == 'logout':
+            self.is_loggedin = False
+
 
 if __name__ == '__main__':
     host = '0.0.0.0'    # all network interface

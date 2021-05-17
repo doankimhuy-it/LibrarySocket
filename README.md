@@ -3,16 +3,17 @@
 ## Cấu trúc message:
 
 - Đăng nhập: login-username-password
-  Server trả lời: login-ok hoặc login-error
+  Server trả lời: login-ok hoặc login-error và đổi giá trị biến is_loggedin thành true
 - Đăng ký: signup-username-password
   Server trả lời: signup-ok hoặc signup-error
 - Tra cứu: search-ID-xxxx hoặc search-Name-xxxx xxxx (khỏi cần dấu ngoặc kép) hoặc search-Type-xxx xxx hoặc search-Author-xxxx xxxx
-  Server trả lời: search-ok hoặc search-error
-- Xem sách (sách đã tra cứu): view-ID-xxxx hoặc view-Name-xxxx xxxx hoặc view-Type-xxx xxx hoặc view-Author-xxxx xxxx
+  Server trả lời: ID-Name-Type-Author|ID-Name-Type-Author... hoặc search-error
+- Xem sách (sách đã tra cứu): view-ID-Name-Type-Author
   Server gửi toàn bộ nội dung
-- Tải sách (sách đã tra cứu): down-ID-xxxx hoặc down-Name-xxxx xxxx hoặc down-Type-xxx xxx hoặc down-Author-xxxx xxxx
+- Tải sách (sách đã tra cứu): down-ID-Name-Type-Author
   Server gửi toàn bộ nội dung
-- Logout: không gửi message về server
+- Logout: logout
+  Server đổi giá trị biến is_loggedin thành false
 
 ## Cấu trúc file
 

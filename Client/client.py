@@ -79,18 +79,43 @@ def click_searchbutton(window):
         errmsg.exec_()
         return -1
 
-    string_sent =  'search-' + window.BookCommandDropBox.currentText()[2:] + '-' \
+    string_sent = 'search-' + window.BookCommandDropBox.currentText()[2:] + '-' \
         + window.BookCommandText.text()
     client_connection.send_message(string_sent)
 
-    recv_msg = client_connection.mainsock.recv(1024).decode('utf8')
-    if recv_msg == 'search-ok':
-        client_connection.book_status.BOOK_AVAILABLE
+    message = ''
+    data = client_connection.mainsock.recv(1024).decode('utf-8')
+    if data == 'search-error':
+        MessBox = QtWidgets.QMessageBox(window)
+        MessBox.setText('Username already existed')
+        MessBox.exec_()
+    else:
+        while data and data[-4:] != '////':
+            #logging.debug('data is {}'.format(data))
+            message = message + str(data)
+            data = client_connection.mainsock.recv(1024).decode('utf-8')
+        message = message + str(data[:-4])
+        message = message.split('|')
+        message = message[:-1]
+        book_list = []
+        for item in message:
+            ID, Name, Type, Author = item.split('-')
+            book_list.append([ID, Name, Type, Author])
+
+        header = ['ID', 'Name', 'Type', 'Author']
+        model = client_gui.TableModel(book_list, header)
+        window.mainWidget.setModel(model)
 
 
 def click_viewbutton(window):
-    string_sent = 'view-' + window.BookCommandDropBox.currentText()[2:] + '-' \
-        + window.BookCommandText.text()
+    index = window.mainWidget.selectedIndexes()
+    if not index:
+        logging.debug('No book selected')
+    else:
+        row = index[0].row()
+        info = '-'.join(window.mainWidget.model().index(row, i).data() for i in range(1, 5))
+
+    string_sent = 'view-' + info
     client_connection.send_message(string_sent)
 
     data_stream = io.BytesIO()
@@ -114,8 +139,14 @@ def click_viewbutton(window):
 
 
 def click_downloadbutton(window):
-    string_sent = 'down-' + window.BookCommandDropBox.currentText()[2:] + '-' \
-        + window.BookCommandText.text()
+    index = window.mainWidget.selectedIndexes()
+    if not index:
+        logging.debug('No book selected')
+    else:
+        row = index[0].row()
+        info = '-'.join(window.mainWidget.model().index(row, i).data() for i in range(1, 5))
+
+    string_sent = 'down-' + info
     client_connection.send_message(string_sent)
 
     data_stream = io.BytesIO()
@@ -131,8 +162,7 @@ def click_downloadbutton(window):
     response = QtWidgets.QFileDialog.getSaveFileName(
         parent=window,
         caption='Save as',
-        filter=file_filter,
-    )
+        filter=file_filter)
     print(response[0])
 
     filename = response[0]
@@ -144,6 +174,7 @@ def click_downloadbutton(window):
 
 def click_logoutbutton(window):
     client_connection.login_status = client_connection.StatusCode.LOGGED_OUT
+    client_connection.send_message('logout')
 
 
 def update_GUI(window):
@@ -169,11 +200,6 @@ def update_GUI(window):
     elif (client_connection.login_status == client_connection.StatusCode.LOGGED_OUT):
         window.change_GUI_status(window.StatusCode.LOGGED_OUT)
 
-    if (client_connection.book_status == client_connection.StatusCode.BOOK_AVAILABLE):
-        window.change_GUI_status(window.StatusCode.BOOK_AVAILABLE)
-    elif (client_connection.login_status == client_connection.StatusCode.BOOK_UNAVAILABLE):
-        window.change_GUI_status(window.StatusCode.BOOK_UNAVAILABLE)
-
 
 def on_quit():
     if client_connection.connect_status == client_connection.StatusCode.CONNECTING \
@@ -195,7 +221,7 @@ def connect_GUI_feature(window):
 
 
 if __name__ == '__main__':
-    app = client_gui.QtWidgets.QApplication([])
+    app = QtWidgets.QApplication([])
     app.setQuitOnLastWindowClosed(False)
     window = client_gui.ClientWindow()
     window.show()
