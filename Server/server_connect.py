@@ -130,11 +130,26 @@ class ServerConnection:
             _sock.sendall(json.dumps(response).encode('utf-8'))
             _sock.sendall('////'.encode('utf-8'))
         elif request_code == 'view':
-            # implement sql lookup and respond for downloading request
+            # implement sql lookup and respond for viewing request
+
             pass
         elif request_code == 'down':
-            # implement sql lookup and respond for searching book request
-            pass
+            # implement sql lookup and respond for downloading book request
+            ID = username = command[0]
+            response = {'code' : 'down'}
+            filelocation = self.SQL.get_book_link(ID)
+            filelocation = 'books/a.txt'
+            try:
+                book_stream = open(filelocation, 'rt')
+            except IOError:
+                response['response'] = 'error'
+            else:
+                s = book_stream.read() 
+                book_stream.close()
+                response['response'] = 'ok'
+                response['book'] = s
+            _sock.sendall(json.dumps(response).encode('utf-8'))
+            _sock.sendall('////'.encode('utf-8'))
         elif request_code == 'logout':
             self.is_loggedin = False
 

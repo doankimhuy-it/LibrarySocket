@@ -152,33 +152,40 @@ def click_downloadbutton(window):
     index = window.mainWidget.selectedIndexes()
     if not index:
         logging.debug('No book selected')
-    else:
-        row = index[0].row()
-        info = '-'.join(window.mainWidget.model().index(row, i).data() for i in range(1, 5))
+        return
+    row = index[0].row()
+    info = '-'.join(window.mainWidget.model().index(row, 0).data())
 
     string_sent = 'down-' + info
     client_connection.send_message(string_sent)
 
     data_stream = io.BytesIO()
+    response = ''
     data = client_connection.mainsock.recv(1024)
     while data and data[-4:] != b'////':
         # logging.debug('data is {}'.format(data))
-        data_stream.write(data)
+        response = response + data.decode('utf-8')
         data = client_connection.mainsock.recv(1024)
 
-    data_stream.write(data[:-4])
+    response = response + data.decode('utf-8')[:-4]
+    logging.debug('response is {}'.format(response))
+    response = json.loads(response)
+    logging.debug('response is {}'.format(response))
+    if response['response'] != 'ok':
+        logging.debug('Cannot locate this book')
+        return
 
     file_filter = 'Text Document (*.txt)'
-    response = QtWidgets.QFileDialog.getSaveFileName(
+    file_prompt = QtWidgets.QFileDialog.getSaveFileName(
         parent=window,
         caption='Save as',
         filter=file_filter)
-    print(response[0])
+    print(file_prompt[0])
 
-    filename = response[0]
+    filename = file_prompt[0]
     if filename:
-        stream = open(filename, 'wb')
-        stream.write(data_stream.getvalue())
+        stream = open(filename, 'wt')
+        stream.write(response['book'])
         stream.close()
 
 
