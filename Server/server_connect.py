@@ -2,7 +2,7 @@ import selectors    # working with multi-clients
 import socket       # socket
 import logging
 import SQL_Query
-
+import json
 logging.basicConfig(level=logging.DEBUG)
 
 
@@ -121,7 +121,14 @@ class ServerConnection:
                 _sock.sendall('login-error'.encode('utf-8'))
         elif request_code == 'search':
             listbook = self.SQL.get_list_book(command[0], int(command[1]))
-
+            response = {'code' : 'search'}
+            if len(listbook) == 0:
+                response['response'] = 'error'
+            else:
+                response['response'] = 'ok'
+                response['books'] = listbook
+            _sock.sendall(json.dumps(response).encode('utf-8'))
+            _sock.sendall('////'.encode('utf-8'))
         elif request_code == 'view':
             # implement sql lookup and respond for downloading request
             pass

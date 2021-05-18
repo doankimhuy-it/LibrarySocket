@@ -169,6 +169,19 @@ class ClientWindow(QtWidgets.QMainWindow):
         msg.setWindowTitle(error)
         return msg
 
+    def list_book_to_table(self, dict_book):
+        header = ['ID', 'Name', 'Category', 'authors', 'release year']
+        books_with_header = list(dict_book.values())
+        book_list = []
+        for book in books_with_header:
+            book['ID'] = str(book['ID'])
+            book['release year'] = str(book['release year'])
+            book_list.append(list(book.values()))
+        logging.debug('booklist is : {}'.format(len(book_list[0])))
+        model = TableModel(self, book_list, header)
+        self.mainWidget.setModel(model) 
+        return book_list
+
     class StatusCode(Enum):
         CONNECTED = auto(),
         DISCONNECTED = auto(),

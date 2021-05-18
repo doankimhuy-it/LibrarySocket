@@ -43,12 +43,12 @@ class SQL_CONNECT:
         if (field != None):
             books = self.cursor.execute('SELECT ID, BOOK_NAME, CATEGORY, AUTHORS, RELEASEYEAR FROM BOOKS \
             WHERE ' + field + ' = ?', value).fetchall()
-            return books
+            return self.conver_list2dict(books)
         else:
             value = '%' + value + '%'
             books = self.cursor.execute('SELECT ID, BOOK_NAME, CATEGORY, AUTHORS, RELEASEYEAR FROM BOOKS \
             WHERE AUTHORS LIKE ?', value).fetchall()
-            return books
+            return self.conver_list2dict(books)
 
     def list_user(self):
         users = self.cursor.execute('SELECT * FROM ACCOUNTS').fetchall()
@@ -60,6 +60,13 @@ class SQL_CONNECT:
             WHERE ID =?', ID).fetchall()
         # should cursor.rowcount shold be > 0
         return book
+    def conver_list2dict(self, listbook):
+        keys = ['ID', 'Name', 'Category', 'authors', 'release year']
+        dictbooks = {}
+        for i in range(len(listbook)):
+            p = dict(zip(keys, listbook[i]))
+            dictbooks.update({i : p})
+        return dictbooks
 
 if __name__ == '__main__':
     x = SQL_CONNECT('localhost', 'LIBRARYSOCKET', 'sa', '1234')

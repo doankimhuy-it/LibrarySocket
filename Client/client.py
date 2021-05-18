@@ -6,6 +6,7 @@ import client_gui
 import client_connect
 import signup
 import io
+import json
 
 client_connection = client_connect.ClientConnect()
 
@@ -71,6 +72,13 @@ def click_loginbutton(window):
     else:
         client_connection.login_status = client_connection.StatusCode.LOGGED_IN
 
+def conver_list2dict(dictbook):
+        
+        listbook = []
+        for i in range(len(listbook)):
+            p = dict(zip(keys, listbook[i]))
+            dictbooks.update({i : p})
+        return dictbooks
 
 def click_searchbutton(window):
     if client_connection.connect_status != client_connection.StatusCode.CONNECTED:
@@ -79,32 +87,34 @@ def click_searchbutton(window):
         errmsg.exec_()
         return -1
 
-    string_sent = 'search-' + window.BookCommandDropBox.currentText()[2:] + '-' \
-        + window.BookCommandText.text()
+    value = window.BookCommandText.text()
+    searchtype = window.BookCommandDropBox.currentText()
+    if len(value) == 0:
+        MessBox = QtWidgets.QMessageBox(window)
+        MessBox.setText('No value to search')
+        MessBox.exec_()
+        return
+    string_sent = 'search-' + searchtype[2:] + '-' \
+        + value
     client_connection.send_message(string_sent)
 
     message = ''
     data = client_connection.mainsock.recv(1024).decode('utf-8')
-    if data == 'search-error':
+    while data and data[-4:] != '////':
+        #logging.debug('data is {}'.format(data))
+        message = message + str(data)
+        data = client_connection.mainsock.recv(1024).decode('utf-8')
+    message = message + str(data[:-4])
+    message = json.loads(message)
+    logging.debug('book recieve: {}'.format(message))
+
+    if message['response'] != 'ok':
         MessBox = QtWidgets.QMessageBox(window)
-        MessBox.setText('Username already existed')
+        MessBox.setText('No book')
         MessBox.exec_()
     else:
-        while data and data[-4:] != '////':
-            #logging.debug('data is {}'.format(data))
-            message = message + str(data)
-            data = client_connection.mainsock.recv(1024).decode('utf-8')
-        message = message + str(data[:-4])
-        message = message.split('|')
-        message = message[:-1]
-        book_list = []
-        for item in message:
-            ID, Name, Type, Author = item.split('-')
-            book_list.append([ID, Name, Type, Author])
-
-        header = ['ID', 'Name', 'Type', 'Author']
-        model = client_gui.TableModel(book_list, header)
-        window.mainWidget.setModel(model)
+        dictbook = message['books']
+        book_list = window.list_book_to_table(dictbook)
 
 
 def click_viewbutton(window):
