@@ -130,27 +130,33 @@ def click_viewbutton(window):
     string_sent = 'view-' + info
     client_connection.send_message(string_sent)
 
-    data_stream = io.BytesIO()
+    response = ''
     data = client_connection.mainsock.recv(1024)
     while data and data[-4:] != b'////':
-        logging.debug('data is {}'.format(data))
-        data_stream.write(data)
+        # logging.debug('data is {}'.format(data))
+        response = response + data.decode('utf-8')
         data = client_connection.mainsock.recv(1024)
 
-    data_stream.write(data[:-4])
+    response = response + data.decode('utf-8')[:-4]
+    response = json.loads(response)
+    if response['response'] != 'ok':
+        logging.debug('Cannot locate this book')
+        return
+
+    book_content = response['book']
 
     view_diag = QtWidgets.QDialog(window)
     view_diag.setWindowTitle('Book content')
     view_diag.setFixedSize(400, 400)
 
-    book_content = QtWidgets.QTextEdit(view_diag)
-    book_content.move(10, 10)
-    book_content.setFixedSize(380, 380)
-    book_content.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
-    book_content.setReadOnly(True)
-    book_content.setWordWrapMode(QtGui.QTextOption.WordWrap)
+    book_content_dialog = QtWidgets.QTextEdit(view_diag)
+    book_content_dialog.move(10, 10)
+    book_content_dialog.setFixedSize(380, 380)
+    book_content_dialog.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
+    book_content_dialog.setReadOnly(True)
+    book_content_dialog.setWordWrapMode(QtGui.QTextOption.WordWrap)
 
-    book_content.setText(str(data_stream.getvalue()))
+    book_content_dialog.setText(book_content)
     view_diag.show()
 
 

@@ -129,11 +129,8 @@ class ServerConnection:
                 response['books'] = listbook
             _sock.sendall(json.dumps(response).encode('utf-8'))
             _sock.sendall('////'.encode('utf-8'))
-        elif request_code == 'view':
-            # implement sql lookup and respond for viewing request
 
-            pass
-        elif request_code == 'down':
+        elif request_code == 'down' or request_code == 'view':
             # implement sql lookup and respond for downloading book request
             ID = username = command[0]
             response = {'code' : 'down'}
