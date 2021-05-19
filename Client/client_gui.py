@@ -121,7 +121,7 @@ class ClientWindow(QtWidgets.QMainWindow):
         self.LogoutButton.setStyleSheet('color: red; font-weight: bold; font-size: 20px;')
 
         self.LogGroupBox.setVisible(False)
-        self.BookGroupBox.setVisible(True)
+        self.BookGroupBox.setVisible(False)
 
     @QtCore.Slot()
     def add_click_behavior(self, obj, func):

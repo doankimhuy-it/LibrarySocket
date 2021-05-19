@@ -124,20 +124,20 @@ def click_viewbutton(window):
     if not index:
         logging.debug('No book selected')
         return
-    # row = index[0].row()
-    # info = '-'.join(window.mainWidget.model().index(row, 0).data())
+    row = index[0].row()
+    info = '-'.join(window.mainWidget.model().index(row, 0).data())
 
-    # string_sent = 'view-' + info
-    # client_connection.send_message(string_sent)
+    string_sent = 'view-' + info
+    client_connection.send_message(string_sent)
 
-    # data_stream = io.BytesIO()
-    # data = client_connection.mainsock.recv(1024)
-    # while data and data[-4:] != b'////':
-    #     logging.debug('data is {}'.format(data))
-    #     data_stream.write(data)
-    #     data = client_connection.mainsock.recv(1024)
+    data_stream = io.BytesIO()
+    data = client_connection.mainsock.recv(1024)
+    while data and data[-4:] != b'////':
+        logging.debug('data is {}'.format(data))
+        data_stream.write(data)
+        data = client_connection.mainsock.recv(1024)
 
-    # data_stream.write(data[:-4])
+    data_stream.write(data[:-4])
 
     view_diag = QtWidgets.QDialog(window)
     view_diag.setWindowTitle('Book content')
@@ -150,7 +150,7 @@ def click_viewbutton(window):
     book_content.setReadOnly(True)
     book_content.setWordWrapMode(QtGui.QTextOption.WordWrap)
 
-    #book_content.setText(str(data_stream.getvalue()))
+    book_content.setText(str(data_stream.getvalue()))
     view_diag.show()
 
 
