@@ -72,13 +72,15 @@ def click_loginbutton(window):
     else:
         client_connection.login_status = client_connection.StatusCode.LOGGED_IN
 
+
 def conver_list2dict(dictbook):
-        
-        listbook = []
-        for i in range(len(listbook)):
-            p = dict(zip(keys, listbook[i]))
-            dictbooks.update({i : p})
-        return dictbooks
+
+    listbook = []
+    for i in range(len(listbook)):
+        p = dict(zip(keys, listbook[i]))
+        dictbooks.update({i: p})
+    return dictbooks
+
 
 def click_searchbutton(window):
     if client_connection.connect_status != client_connection.StatusCode.CONNECTED:
@@ -121,31 +123,35 @@ def click_viewbutton(window):
     index = window.mainWidget.selectedIndexes()
     if not index:
         logging.debug('No book selected')
-    else:
-        row = index[0].row()
-        info = '-'.join(window.mainWidget.model().index(row, i).data() for i in range(1, 5))
+        return
+    # row = index[0].row()
+    # info = '-'.join(window.mainWidget.model().index(row, 0).data())
 
-    string_sent = 'view-' + info
-    client_connection.send_message(string_sent)
+    # string_sent = 'view-' + info
+    # client_connection.send_message(string_sent)
 
-    data_stream = io.BytesIO()
-    data = client_connection.mainsock.recv(1024)
-    while data and data[-4:] != b'////':
-        # logging.debug('data is {}'.format(data))
-        data_stream.write(data)
-        data = client_connection.mainsock.recv(1024)
+    # data_stream = io.BytesIO()
+    # data = client_connection.mainsock.recv(1024)
+    # while data and data[-4:] != b'////':
+    #     logging.debug('data is {}'.format(data))
+    #     data_stream.write(data)
+    #     data = client_connection.mainsock.recv(1024)
 
-    data_stream.write(data[:-4])
+    # data_stream.write(data[:-4])
 
     view_diag = QtWidgets.QDialog(window)
     view_diag.setWindowTitle('Book content')
-    view_diag.setFixedSize(200, 200)
+    view_diag.setFixedSize(400, 400)
 
     book_content = QtWidgets.QTextEdit(view_diag)
-    book_content.move(20, 20)
-    book_content.setFixedSize(180, 180)
+    book_content.move(10, 10)
+    book_content.setFixedSize(380, 380)
+    book_content.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
+    book_content.setReadOnly(True)
+    book_content.setWordWrapMode(QtGui.QTextOption.WordWrap)
 
-    book_content.setText(str(data_stream.getvalue()))
+    #book_content.setText(str(data_stream.getvalue()))
+    view_diag.show()
 
 
 def click_downloadbutton(window):

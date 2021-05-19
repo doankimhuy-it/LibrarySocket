@@ -85,43 +85,43 @@ class ClientWindow(QtWidgets.QMainWindow):
         # Book group box
         self.BookGroupBox = QtWidgets.QGroupBox("Book browsing", self)
         self.BookGroupBox.move(10, 60)
-        self.BookGroupBox.setFixedSize(480, 220)
+        self.BookGroupBox.setFixedSize(480, 230)
 
         self.mainWidget = QtWidgets.QTableView(self.BookGroupBox)
-        self.mainWidget.move(5, 20)
-        self.mainWidget.setFixedSize(250, 190)
+        self.mainWidget.move(5, 75)
+        self.mainWidget.setFixedSize(470, 145)
         self.mainWidget.setSortingEnabled(True)
         self.list_process_data = []
 
         self.BookCommandDropBox = QtWidgets.QComboBox(self.BookGroupBox)
         self.BookCommandDropBox.addItems(['F_ID', 'F_Name', 'F_Type', 'F_Author'])
-        self.BookCommandDropBox.move(260, 20)
+        self.BookCommandDropBox.move(5, 20)
 
         self.BookCommandText = QtWidgets.QLineEdit(self.BookGroupBox)
-        self.BookCommandText.setFixedWidth(135)
+        self.BookCommandText.setFixedWidth(160)
         self.BookCommandText.setPlaceholderText("Enter string to search")
-        self.BookCommandText.move(340, 20)
+        self.BookCommandText.move(90, 20)
 
         self.SearchButton = QtWidgets.QPushButton("Search", self.BookGroupBox)
-        self.SearchButton.move(380, 50)
-        self.SearchButton.setFixedSize(95, 80)
-        self.SearchButton.setStyleSheet('font-size: 16px')
+        self.SearchButton.move(255, 20)
+        self.SearchButton.setStyleSheet('font-size: 16px; font-weight: bold; color: green')
+        self.SearchButton.setFixedSize(70, 49)
 
         self.ViewButton = QtWidgets.QPushButton("View book", self.BookGroupBox)
-        self.ViewButton.move(260, 50)
-        self.ViewButton.setFixedSize(110, 35)
+        self.ViewButton.move(5, 45)
+        self.ViewButton.setFixedWidth(120)
 
         self.DownloadButton = QtWidgets.QPushButton("Download book", self.BookGroupBox)
-        self.DownloadButton.move(260, 95)
-        self.DownloadButton.setFixedSize(110, 35)
+        self.DownloadButton.move(130, 45)
+        self.DownloadButton.setFixedWidth(120)
 
         self.LogoutButton = QtWidgets.QPushButton("LOGOUT!", self.BookGroupBox)
-        self.LogoutButton.move(260, 150)
-        self.LogoutButton.setFixedSize(215, 60)
+        self.LogoutButton.move(330, 20)
+        self.LogoutButton.setFixedSize(145, 49)
         self.LogoutButton.setStyleSheet('color: red; font-weight: bold; font-size: 20px;')
 
-        self.LogGroupBox.setVisible(True)
-        self.BookGroupBox.setVisible(False)
+        self.LogGroupBox.setVisible(False)
+        self.BookGroupBox.setVisible(True)
 
     @QtCore.Slot()
     def add_click_behavior(self, obj, func):
@@ -136,21 +136,25 @@ class ClientWindow(QtWidgets.QMainWindow):
                 index = ConnectingString.index(text)
             index = (index + 1) % 4
             self.ConnectButton.setText(ConnectingString[index])
+            self.LogGroupBox.setVisible(False)
 
         if StatusCode == self.StatusCode.CONNECTED:
             self.ConnectButton.setText('Disconnect!')
             self.ConnectStatusBox.setText('CONNECTED!')
             self.ConnectStatusBox.setStyleSheet("border: 1.5px solid black; font-weight: bold; color: green;")
+            self.LogGroupBox.setVisible(True)
 
         if StatusCode == self.StatusCode.DISCONNECTED:
             self.ConnectButton.setText('Connect!')
             self.ConnectStatusBox.setText('DISCONNECTED!')
             self.ConnectStatusBox.setStyleSheet("border: 1.5px solid black; font-weight: bold; color: red;")
+            self.LogGroupBox.setVisible(False)
 
         if StatusCode == self.StatusCode.TIMEOUT:
             self.ConnectButton.setText('Connect!')
             self.ConnectStatusBox.setText('TIMED OUT!')
             self.ConnectStatusBox.setStyleSheet("border: 1.5px solid black; font-weight: bold; color: brown;")
+            self.LogGroupBox.setVisible(False)
 
         if StatusCode == self.StatusCode.LOGGED_IN:
             self.LogGroupBox.setVisible(False)
@@ -170,7 +174,7 @@ class ClientWindow(QtWidgets.QMainWindow):
         return msg
 
     def list_book_to_table(self, dict_book):
-        header = ['ID', 'Name', 'Category', 'authors', 'release year']
+        header = ['ID', 'Name', 'Category', 'Authors', 'Release year']
         books_with_header = list(dict_book.values())
         book_list = []
         for book in books_with_header:
@@ -179,7 +183,7 @@ class ClientWindow(QtWidgets.QMainWindow):
             book_list.append(list(book.values()))
         logging.debug('booklist is : {}'.format(len(book_list[0])))
         model = TableModel(self, book_list, header)
-        self.mainWidget.setModel(model) 
+        self.mainWidget.setModel(model)
         return book_list
 
     class StatusCode(Enum):
