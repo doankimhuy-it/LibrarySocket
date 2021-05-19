@@ -149,12 +149,14 @@ class ClientWindow(QtWidgets.QMainWindow):
             self.ConnectStatusBox.setText('DISCONNECTED!')
             self.ConnectStatusBox.setStyleSheet("border: 1.5px solid black; font-weight: bold; color: red;")
             self.LogGroupBox.setVisible(False)
+            self.BookGroupBox.setVisible(False)
 
         if StatusCode == self.StatusCode.TIMEOUT:
             self.ConnectButton.setText('Connect!')
             self.ConnectStatusBox.setText('TIMED OUT!')
             self.ConnectStatusBox.setStyleSheet("border: 1.5px solid black; font-weight: bold; color: brown;")
             self.LogGroupBox.setVisible(False)
+            self.BookGroupBox.setVisible(False)
 
         if StatusCode == self.StatusCode.LOGGED_IN:
             self.LogGroupBox.setVisible(False)
