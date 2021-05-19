@@ -16,7 +16,7 @@ class ClientWindow(QtWidgets.QMainWindow):
 
         # create windows title and its size
         self.setWindowTitle("Client")
-        self.setFixedSize(500, 300)
+        self.setFixedSize(600, 300)
 
         # IP box
         self.IPTextBox = QtWidgets.QLineEdit("127.0.0.1", self)
@@ -27,22 +27,24 @@ class ClientWindow(QtWidgets.QMainWindow):
         self.PortTextBox = QtWidgets.QLineEdit("65432", self)
         self.PortValidator = QtGui.QIntValidator(0, 65535, self)
         self.PortTextBox.setValidator(self.PortValidator)
-        self.PortTextBox.move(self.IPTextBox.geometry().x() + self.IPTextBox.width() + 5, 20)
-        self.PortTextBox.setFixedWidth(50)
+        self.PortTextBox.move(240, 20)
+        self.PortTextBox.setFixedWidth(70)
 
         # Connect button
         self.ConnectButton = QtWidgets.QPushButton("Connect!", self)
-        self.ConnectButton.move(self.PortTextBox.geometry().x() + self.PortTextBox.width() + 5, 20)
+        self.ConnectButton.move(330, 20)
+        self.ConnectButton.setFixedWidth(110)
 
         # Connect status
         self.ConnectStatusBox = QtWidgets.QLabel("DISCONNECTED!", self, alignment=QtCore.Qt.AlignCenter)
-        self.ConnectStatusBox.move(10 + self.ConnectButton.geometry().x() + self.ConnectButton.width(), 20)
+        self.ConnectStatusBox.move(460, 20)
+        self.ConnectStatusBox.setFixedWidth(120)
         self.ConnectStatusBox.setStyleSheet("border: 1.5px solid black; font-weight: bold; color : red;")
 
         # Login/Logout group box
         self.LogGroupBox = QtWidgets.QGroupBox("Login/Sign up", self)
-        self.LogGroupBox.move(20, 60)
-        self.LogGroupBox.setFixedSize(460, 220)
+        self.LogGroupBox.move(10, 60)
+        self.LogGroupBox.setFixedSize(580, 220)
 
         self.LogLayout = QtWidgets.QGridLayout(self.LogGroupBox)
 
@@ -53,7 +55,7 @@ class ClientWindow(QtWidgets.QMainWindow):
         self.UsernameRegex = QtCore.QRegularExpression("[A-Za-z0-9._]+")
         self.UsernameValidator = QtGui.QRegularExpressionValidator(self.UsernameRegex)
         self.UsernameBox.setValidator(self.UsernameValidator)
-        self.UsernameBox.setFixedSize(250, 30)
+        self.UsernameBox.setFixedSize(300, 30)
         self.LogLayout.addWidget(self.label_username, 0, 0)
         self.LogLayout.addWidget(self.UsernameBox, 0, 1)
 
@@ -64,7 +66,8 @@ class ClientWindow(QtWidgets.QMainWindow):
         self.PasswordRegex = QtCore.QRegularExpression("[^-\s]+")
         self.PasswordValidator = QtGui.QRegularExpressionValidator(self.PasswordRegex)
         self.PasswordBox.setValidator(self.PasswordValidator)
-        self.PasswordBox.setFixedSize(250, 30)
+        self.PasswordBox.setFixedSize(300, 30)
+        self.PasswordBox.setEchoMode(QtWidgets.QLineEdit.Password)
         self.LogLayout.addWidget(self.label_password, 1, 0)
         self.LogLayout.addWidget(self.PasswordBox, 1, 1)
 
@@ -85,13 +88,15 @@ class ClientWindow(QtWidgets.QMainWindow):
         # Book group box
         self.BookGroupBox = QtWidgets.QGroupBox("Book browsing", self)
         self.BookGroupBox.move(10, 60)
-        self.BookGroupBox.setFixedSize(480, 230)
+        self.BookGroupBox.setFixedSize(580, 230)
 
         self.mainWidget = QtWidgets.QTableView(self.BookGroupBox)
-        self.mainWidget.move(5, 75)
-        self.mainWidget.setFixedSize(470, 145)
+        self.mainWidget.move(5, 50)
+        self.mainWidget.setFixedSize(570, 175)
         self.mainWidget.setSortingEnabled(True)
         self.list_process_data = []
+        self.mainWidget.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
+        self.mainWidget.setSelectionBehavior(QtWidgets.QTableView.SelectRows)
 
         self.BookCommandDropBox = QtWidgets.QComboBox(self.BookGroupBox)
         self.BookCommandDropBox.addItems(['F_ID', 'F_Name', 'F_Type', 'F_Author'])
@@ -100,25 +105,23 @@ class ClientWindow(QtWidgets.QMainWindow):
         self.BookCommandText = QtWidgets.QLineEdit(self.BookGroupBox)
         self.BookCommandText.setFixedWidth(160)
         self.BookCommandText.setPlaceholderText("Enter string to search")
-        self.BookCommandText.move(90, 20)
+        self.BookCommandText.move(85, 20)
 
         self.SearchButton = QtWidgets.QPushButton("Search", self.BookGroupBox)
-        self.SearchButton.move(255, 20)
-        self.SearchButton.setStyleSheet('font-size: 16px; font-weight: bold; color: green')
-        self.SearchButton.setFixedSize(70, 49)
+        self.SearchButton.move(250, 19)
+        self.SearchButton.setStyleSheet('color: green;')
+        self.SearchButton.setFixedWidth(60)
 
         self.ViewButton = QtWidgets.QPushButton("View book", self.BookGroupBox)
-        self.ViewButton.move(5, 45)
-        self.ViewButton.setFixedWidth(120)
+        self.ViewButton.move(315, 19)
 
         self.DownloadButton = QtWidgets.QPushButton("Download book", self.BookGroupBox)
-        self.DownloadButton.move(130, 45)
-        self.DownloadButton.setFixedWidth(120)
+        self.DownloadButton.move(395, 19)
+        self.DownloadButton.setFixedWidth(100)
 
         self.LogoutButton = QtWidgets.QPushButton("LOGOUT!", self.BookGroupBox)
-        self.LogoutButton.move(330, 20)
-        self.LogoutButton.setFixedSize(145, 49)
-        self.LogoutButton.setStyleSheet('color: red; font-weight: bold; font-size: 20px;')
+        self.LogoutButton.move(500, 19)
+        self.LogoutButton.setStyleSheet('color: red;')
 
         self.LogGroupBox.setVisible(False)
         self.BookGroupBox.setVisible(False)
@@ -127,8 +130,8 @@ class ClientWindow(QtWidgets.QMainWindow):
     def add_click_behavior(self, obj, func):
         obj.clicked.connect(func)
 
-    def change_GUI_status(self, StatusCode):
-        if StatusCode == self.StatusCode.CONNECTING:
+    def change_GUI_status(self, ConnectStatusCode, LoginStatusCode=0):
+        if ConnectStatusCode == self.ConnectStatusCode.CONNECTING:
             ConnectingString = ['Connecting', 'Connecting.', 'Connecting..', 'Connecting...']
             text = self.ConnectButton.text()
             index = 3
@@ -137,33 +140,32 @@ class ClientWindow(QtWidgets.QMainWindow):
             index = (index + 1) % 4
             self.ConnectButton.setText(ConnectingString[index])
             self.LogGroupBox.setVisible(False)
+            self.BookGroupBox.setVisible(False)
 
-        if StatusCode == self.StatusCode.CONNECTED:
+        if ConnectStatusCode == self.ConnectStatusCode.CONNECTED:
             self.ConnectButton.setText('Disconnect!')
             self.ConnectStatusBox.setText('CONNECTED!')
             self.ConnectStatusBox.setStyleSheet("border: 1.5px solid black; font-weight: bold; color: green;")
-            self.LogGroupBox.setVisible(True)
 
-        if StatusCode == self.StatusCode.DISCONNECTED:
+            if LoginStatusCode == self.LoginStatusCode.LOGGED_IN:
+                self.LogGroupBox.setVisible(False)
+                self.BookGroupBox.setVisible(True)
+            elif LoginStatusCode == self.LoginStatusCode.LOGGED_OUT:
+                self.LogGroupBox.setVisible(True)
+                self.BookGroupBox.setVisible(False)
+
+        if ConnectStatusCode == self.ConnectStatusCode.DISCONNECTED:
             self.ConnectButton.setText('Connect!')
             self.ConnectStatusBox.setText('DISCONNECTED!')
             self.ConnectStatusBox.setStyleSheet("border: 1.5px solid black; font-weight: bold; color: red;")
             self.LogGroupBox.setVisible(False)
             self.BookGroupBox.setVisible(False)
 
-        if StatusCode == self.StatusCode.TIMEOUT:
+        if ConnectStatusCode == self.ConnectStatusCode.TIMEOUT:
             self.ConnectButton.setText('Connect!')
             self.ConnectStatusBox.setText('TIMED OUT!')
             self.ConnectStatusBox.setStyleSheet("border: 1.5px solid black; font-weight: bold; color: brown;")
             self.LogGroupBox.setVisible(False)
-            self.BookGroupBox.setVisible(False)
-
-        if StatusCode == self.StatusCode.LOGGED_IN:
-            self.LogGroupBox.setVisible(False)
-            self.BookGroupBox.setVisible(True)
-
-        if StatusCode == self.StatusCode.LOGGED_OUT:
-            self.LogGroupBox.setVisible(True)
             self.BookGroupBox.setVisible(False)
 
     def showError(self, error='NO CONNECTIONS', message='Please connect to server first'):
@@ -188,11 +190,13 @@ class ClientWindow(QtWidgets.QMainWindow):
         self.mainWidget.setModel(model)
         return book_list
 
-    class StatusCode(Enum):
+    class ConnectStatusCode(Enum):
         CONNECTED = auto(),
         DISCONNECTED = auto(),
         CONNECTING = auto(),
-        TIMEOUT = auto(),
+        TIMEOUT = auto()
+
+    class LoginStatusCode(Enum):
         LOGGED_IN = auto(),
         LOGGED_OUT = auto()
 

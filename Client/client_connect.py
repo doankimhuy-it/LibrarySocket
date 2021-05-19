@@ -6,10 +6,11 @@ from enum import Enum, auto
 # for debugging
 logging.basicConfig(level=logging.DEBUG)
 
+
 class ClientConnect:
     def __init__(self):
-        self.connect_status = self.StatusCode.DISCONNECTED
-        self.login_status = self.StatusCode.LOGGED_OUT
+        self.connect_status = self.ConnectStatusCode.DISCONNECTED
+        self.login_status = self.LoginStatusCode.LOGGED_OUT
         self.host = '0.0.0.0'
         self.port = 0
         self.mainsock = 0
@@ -23,11 +24,11 @@ class ClientConnect:
             self.mainsock.connect((self.host, self.port))
         except (ConnectionRefusedError, TimeoutError) as e:
             logging.debug('Cannot connect to host {}'.format(e))
-            self.connect_status = self.StatusCode.TIMEOUT   # timeout-status
+            self.connect_status = self.ConnectStatusCode.TIMEOUT   # timeout-status
             return
         else:
             logging.debug('Connected to server {}'.format(self.mainsock.getpeername()))
-            self.connect_status = self.StatusCode.CONNECTED
+            self.connect_status = self.ConnectStatusCode.CONNECTED
 
     def send_message(self, message):
         message = message.encode('utf-8')
@@ -35,20 +36,23 @@ class ClientConnect:
             self.mainsock.sendall(message)
         except:  # ConnectionAbortedError and ConnectionResetError
             logging.debug('Lost connection from {}'.format(self.mainsock.getpeername()))
-            self.connect_status = self.StatusCode.DISCONNECTED
+            self.connect_status = self.ConnectStatusCode.DISCONNECTED
             self.lost_connection = True
 
     def stop_connection(self):
         logging.debug('Closed connection to {}'.format(self.mainsock.getpeername()))
         end_message = 'Close'
         self.send_message(end_message)
-        self.connect_status = self.StatusCode.DISCONNECTED
+        self.connect_status = self.ConnectStatusCode.DISCONNECTED
+        self.login_status = self.LoginStatusCode.LOGGED_OUT
 
-    class StatusCode(Enum):
+    class ConnectStatusCode(Enum):
         CONNECTED = auto(),
         DISCONNECTED = auto(),
         CONNECTING = auto(),
-        TIMEOUT = auto(),
+        TIMEOUT = auto()
+
+    class LoginStatusCode(Enum):
         LOGGED_IN = auto(),
         LOGGED_OUT = auto()
 

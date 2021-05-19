@@ -12,8 +12,8 @@ client_connection = client_connect.ClientConnect()
 
 
 def click_connectbutton(window):
-    if (client_connection.connect_status == client_connection.StatusCode.DISCONNECTED
-            or client_connection.connect_status == client_connection.StatusCode.TIMEOUT):
+    if (client_connection.connect_status == client_connection.ConnectStatusCode.DISCONNECTED
+            or client_connection.connect_status == client_connection.ConnectStatusCode.TIMEOUT):
 
         host_str = str(window.IPTextBox.text())
         port_str = window.PortTextBox.text()
@@ -25,8 +25,8 @@ def click_connectbutton(window):
         port_str = int(port_str)
         # Try to connect to server for the first time, after DISCONNECTED or timeout seasion
         # turn status to connecting
-        client_connection.connect_status = client_connection.StatusCode.CONNECTING
-        window.change_GUI_status(window.StatusCode.CONNECTING)
+        client_connection.connect_status = client_connection.ConnectStatusCode.CONNECTING
+        window.change_GUI_status(window.ConnectStatusCode.CONNECTING)
         # try to connect to host
         connection_thread = threading.Thread(target=client_connection.start_connection, args=(host_str, port_str))
         connection_thread.start()
@@ -34,16 +34,16 @@ def click_connectbutton(window):
         # start timer - update GUI and send sample data to server (PING)
         window.timer_update_GUI.start(1000)
 
-    elif (client_connection.connect_status == client_connection.StatusCode.CONNECTED):
+    elif (client_connection.connect_status == client_connection.ConnectStatusCode.CONNECTED):
         # Users choose to close connection
         client_connection.stop_connection()
-        window.change_GUI_status(window.StatusCode.DISCONNECTED)
+        window.change_GUI_status(window.ConnectStatusCode.DISCONNECTED)
         # stop the timer
         window.timer_update_GUI.stop()
 
 
 def click_signupbutton(window):
-    if client_connection.connect_status != client_connection.StatusCode.CONNECTED:
+    if client_connection.connect_status != client_connection.ConnectStatusCode.CONNECTED:
         # show error msg
         errmsg = window.showError()
         errmsg.exec_()
@@ -55,35 +55,36 @@ def click_signupbutton(window):
 
 
 def click_loginbutton(window):
-    if client_connection.connect_status != client_connection.StatusCode.CONNECTED:
+    if client_connection.connect_status != client_connection.ConnectStatusCode.CONNECTED:
         # show error msg
         errmsg = window.showError()
         errmsg.exec_()
         return -1
 
-    string_sent = 'login-' + window.UsernameBox.text() + '-' + window.PasswordBox.text()
-    client_connection.send_message(string_sent)
-
-    recv_msg = client_connection.mainsock.recv(1024).decode('utf8')
-    if recv_msg == 'login-error':
-        MessBox = QtWidgets.QMessageBox(window)
-        MessBox.setText('Incorrect username or password')
-        MessBox.exec_()
+    if (len(window.UsernameBox.text()) < 6) or (len(window.PasswordBox.text()) < 4):
+        err_diag = QtWidgets.QMessageBox(window)
+        err_diag.setFixedWidth(200)
+        err_diag.setIcon(QtWidgets.QMessageBox.Information)
+        err_diag.setText('Username must be longer than 5 characters\nPassword must be longer than 3 charaters \
+                    \nRe-enter information to continue')
+        err_diag.setWindowTitle('Username/Password error')
+        err_diag.exec()
     else:
-        client_connection.login_status = client_connection.StatusCode.LOGGED_IN
+        string_sent = 'login-' + window.UsernameBox.text() + '-' + window.PasswordBox.text()
+        client_connection.send_message(string_sent)
 
-
-def conver_list2dict(dictbook):
-
-    listbook = []
-    for i in range(len(listbook)):
-        p = dict(zip(keys, listbook[i]))
-        dictbooks.update({i: p})
-    return dictbooks
+        recv_msg = client_connection.mainsock.recv(1024).decode('utf8')
+        if recv_msg == 'login-error':
+            MessBox = QtWidgets.QMessageBox(window)
+            MessBox.setText('Incorrect username or password')
+            MessBox.setWindowTitle('Error')
+            MessBox.exec_()
+        else:
+            client_connection.login_status = client_connection.LoginStatusCode.LOGGED_IN
 
 
 def click_searchbutton(window):
-    if client_connection.connect_status != client_connection.StatusCode.CONNECTED:
+    if client_connection.connect_status != client_connection.ConnectStatusCode.CONNECTED:
         # show error msg
         errmsg = window.showError()
         errmsg.exec_()
@@ -202,37 +203,36 @@ def click_downloadbutton(window):
 
 
 def click_logoutbutton(window):
-    client_connection.login_status = client_connection.StatusCode.LOGGED_OUT
+    client_connection.login_status = client_connection.LoginStatusCode.LOGGED_OUT
+    window.PasswordBox.clear()
     client_connection.send_message('logout')
 
 
 def update_GUI(window):
-    if (client_connection.connect_status == client_connection.StatusCode.CONNECTING):
-        window.change_GUI_status(window.StatusCode.CONNECTING)
-    elif (client_connection.connect_status == client_connection.StatusCode.TIMEOUT):
-        window.change_GUI_status(window.StatusCode.TIMEOUT)
-    elif (client_connection.connect_status == client_connection.StatusCode.DISCONNECTED):
+    if (client_connection.connect_status == client_connection.ConnectStatusCode.CONNECTING):
+        window.change_GUI_status(window.ConnectStatusCode.CONNECTING)
+    elif (client_connection.connect_status == client_connection.ConnectStatusCode.TIMEOUT):
+        window.change_GUI_status(window.ConnectStatusCode.TIMEOUT)
+    elif (client_connection.connect_status == client_connection.ConnectStatusCode.DISCONNECTED):
         # In case lost connection from server, we make notification to user
         if (client_connection.lost_connection == True):
             client_connection.lost_connection = False
             server_address = str(client_connection.mainsock.getpeername()[0]) + ':' + str(client_connection.mainsock.getpeername()[1])
             errmsg = window.showError('Lost connection', ' from server: ' + server_address)
             errmsg.exec_()
-        window.change_GUI_status(window.StatusCode.DISCONNECTED)
-    elif (client_connection.connect_status == client_connection.StatusCode.CONNECTED):               # in-connecting
-        window.change_GUI_status(window.StatusCode.CONNECTED)
+        window.change_GUI_status(window.ConnectStatusCode.DISCONNECTED)
+    elif (client_connection.connect_status == client_connection.ConnectStatusCode.CONNECTED):               # in-connecting
+        if (client_connection.login_status == client_connection.LoginStatusCode.LOGGED_IN):
+            window.change_GUI_status(window.ConnectStatusCode.CONNECTED, window.LoginStatusCode.LOGGED_IN)
+        else:
+            window.change_GUI_status(window.ConnectStatusCode.CONNECTED, window.LoginStatusCode.LOGGED_OUT)
         # sent '00' after every 1000ms to check server's signal
         client_connection.send_message('00')
 
-    if (client_connection.login_status == client_connection.StatusCode.LOGGED_IN):
-        window.change_GUI_status(window.StatusCode.LOGGED_IN)
-    elif (client_connection.login_status == client_connection.StatusCode.LOGGED_OUT):
-        window.change_GUI_status(window.StatusCode.LOGGED_OUT)
-
 
 def on_quit():
-    if client_connection.connect_status == client_connection.StatusCode.CONNECTING \
-            or client_connection.connect_status == client_connection.StatusCode.CONNECTED:
+    if client_connection.connect_status == client_connection.ConnectStatusCode.CONNECTING \
+            or client_connection.connect_status == client_connection.ConnectStatusCode.CONNECTED:
         client_connection.stop_connection()
     app.exit()
 

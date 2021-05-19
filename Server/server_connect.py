@@ -120,7 +120,7 @@ class ServerConnection:
             else:
                 _sock.sendall('login-error'.encode('utf-8'))
         elif request_code == 'search':
-            listbook = self.SQL.get_list_book(command[0].upper(), command[1].upper())
+            listbook = self.SQL.get_list_book(command[0], command[1].upper())
             response = {'code' : 'search'}
             if len(listbook) == 0:
                 response['response'] = 'error'
