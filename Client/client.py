@@ -11,16 +11,16 @@ import json
 client_connection = client_connect.ClientConnect()
 
 
-def click_connectbutton(window):
+def click_connect_button(window):
     if (client_connection.connect_status == client_connection.ConnectStatusCode.DISCONNECTED
             or client_connection.connect_status == client_connection.ConnectStatusCode.TIMEOUT):
 
-        host_str = str(window.IPTextBox.text())
-        port_str = window.PortTextBox.text()
+        host_str = str(window.IP_textbox.text())
+        port_str = window.port_textbox.text()
         pos = 0
-        if window.PortValidator.validate(port_str, pos)[0] != window.PortValidator.Acceptable:
-            errmsg = window.showError('Invalid Address', 'Invalid Port')
-            errmsg.exec_()
+        if window.port_validator.validate(port_str, pos)[0] != window.port_validator.Acceptable:
+            error_messagebox = window.show_error('Invalid Address', 'Invalid Port')
+            error_messagebox.exec_()
             return -1
         port_str = int(port_str)
         # Try to connect to server for the first time, after DISCONNECTED or timeout seasion
@@ -42,11 +42,11 @@ def click_connectbutton(window):
         window.timer_update_GUI.stop()
 
 
-def click_signupbutton(window):
+def click_signup_button(window):
     if client_connection.connect_status != client_connection.ConnectStatusCode.CONNECTED:
         # show error msg
-        errmsg = window.showError()
-        errmsg.exec_()
+        error_messagebox = window.show_error()
+        error_messagebox.exec_()
         return -1
 
     signup_dialog = signup.SignUpDialog(client_connection.mainsock)
@@ -54,14 +54,16 @@ def click_signupbutton(window):
     subthread.start()
 
 
-def click_loginbutton(window):
+def click_login_button(window):
     if client_connection.connect_status != client_connection.ConnectStatusCode.CONNECTED:
         # show error msg
-        errmsg = window.showError()
-        errmsg.exec_()
+        error_messagebox = window.show_error()
+        error_messagebox.exec_()
         return -1
 
-    if (len(window.UsernameBox.text()) < 6) or (len(window.PasswordBox.text()) < 4):
+    username = window.username_textbox.text()
+    password = window.password_textbox.text()
+    if (len(username) < 6) or (len(password) < 4):
         err_diag = QtWidgets.QMessageBox(window)
         err_diag.setFixedWidth(200)
         err_diag.setIcon(QtWidgets.QMessageBox.Information)
@@ -70,81 +72,84 @@ def click_loginbutton(window):
         err_diag.setWindowTitle('Username/Password error')
         err_diag.exec()
     else:
-        string_sent = 'login-' + window.UsernameBox.text() + '-' + window.PasswordBox.text()
-        client_connection.send_message(string_sent)
+        #string_sent = 'login-' + window.username_textbox.text() + '-' + window.password_textbox.text()
+        message_to_send = {'request': 'login', 'username': username, 'password': password}
+        client_connection.send_message(message_to_send)
 
-        recv_msg = client_connection.mainsock.recv(1024).decode('utf8')
-        if recv_msg == 'login-error':
-            MessBox = QtWidgets.QMessageBox(window)
-            MessBox.setText('Incorrect username or password')
-            MessBox.setWindowTitle('Error')
-            MessBox.exec_()
+        recv_message = client_connection.mainsock.recv(1024)
+        recv_message = json.loads(recv_message.decode('utf8'))
+        if recv_message['request'] == 'login' and recv_message['status'] != 'ok':
+            message_box = QtWidgets.QMessageBox(window)
+            message_box.setText('Incorrect username or password')
+            message_box.setWindowTitle('Error')
+            message_box.exec_()
         else:
             client_connection.login_status = client_connection.LoginStatusCode.LOGGED_IN
 
 
-def click_searchbutton(window):
+def click_search_button(window):
     if client_connection.connect_status != client_connection.ConnectStatusCode.CONNECTED:
-        # show error msg
-        errmsg = window.showError()
-        errmsg.exec_()
+        # show error message
+        error_messagebox = window.show_error()
+        error_messagebox.exec_()
         return -1
 
-    value = window.BookCommandText.text()
-    searchtype = window.BookCommandDropBox.currentText()
+    value = window.book_info_textbox.text()
+    search_type = window.book_combobox.currentText()
     if len(value) == 0:
-        MessBox = QtWidgets.QMessageBox(window)
-        MessBox.setText('No value to search')
-        MessBox.exec_()
+        message_box = QtWidgets.QMessageBox(window)
+        message_box.setText('No value to search')
+        message_box.exec_()
         return
-    string_sent = 'search-' + searchtype[2:] + '-' \
-        + value
-    client_connection.send_message(string_sent)
+    #string_sent = 'search-' + searchtype[2:] + '-' + value
+    message_to_send = {'request': 'search', 'type': search_type[2:], 'value': value}
+    client_connection.send_message(message_to_send)
 
-    message = ''
+    recv_message = ''
     data = client_connection.mainsock.recv(1024).decode('utf-8')
     while data and data[-4:] != '////':
         #logging.debug('data is {}'.format(data))
-        message = message + str(data)
+        recv_message = recv_message + str(data)
         data = client_connection.mainsock.recv(1024).decode('utf-8')
-    message = message + str(data[:-4])
-    message = json.loads(message)
-    logging.debug('book recieve: {}'.format(message))
+    recv_message = recv_message + str(data[:-4])
+    recv_message = json.loads(recv_message)
+    logging.debug('book receive: {}'.format(recv_message))
 
-    if message['response'] != 'ok':
-        MessBox = QtWidgets.QMessageBox(window)
-        MessBox.setText('No book')
-        MessBox.exec_()
+    if recv_message['status'] != 'ok':
+        message_box = QtWidgets.QMessageBox(window)
+        message_box.setText('No books available')
+        message_box.exec_()
     else:
-        dictbook = message['books']
-        book_list = window.list_book_to_table(dictbook)
+        book_dict = recv_message['books']
+        book_list = window.list_book_to_table(book_dict)
 
 
-def click_viewbutton(window):
-    index = window.mainWidget.selectedIndexes()
+def click_view_button(window):
+    index = window.main_widget.selectedIndexes()
     if not index:
         logging.debug('No book selected')
         return
     row = index[0].row()
-    info = '-'.join(window.mainWidget.model().index(row, 0).data())
+    book_info = '-'.join(window.main_widget.model().index(row, 0).data())
 
-    string_sent = 'view-' + info
-    client_connection.send_message(string_sent)
+    #string_sent = 'view-' + info
+    message_to_send = {'request': 'view', 'info': book_info}
+    client_connection.send_message(message_to_send)
 
-    response = ''
+    recv_message = ''
     data = client_connection.mainsock.recv(1024)
     while data and data[-4:] != b'////':
         # logging.debug('data is {}'.format(data))
-        response = response + data.decode('utf-8')
+        recv_message = recv_message + data.decode('utf-8')
         data = client_connection.mainsock.recv(1024)
 
-    response = response + data.decode('utf-8')[:-4]
-    response = json.loads(response)
-    if response['response'] != 'ok':
+    recv_message = recv_message + data.decode('utf-8')[:-4]
+    recv_message = json.loads(recv_message)
+    if recv_message['status'] != 'ok':
         logging.debug('Cannot locate this book')
         return
 
-    book_content = response['book']
+    book_content = recv_message['book']
 
     view_diag = QtWidgets.QDialog(window)
     view_diag.setWindowTitle('Book content')
@@ -161,30 +166,29 @@ def click_viewbutton(window):
     view_diag.show()
 
 
-def click_downloadbutton(window):
-    index = window.mainWidget.selectedIndexes()
+def click_download_button(window):
+    index = window.main_widget.selectedIndexes()
     if not index:
         logging.debug('No book selected')
         return
     row = index[0].row()
-    info = '-'.join(window.mainWidget.model().index(row, 0).data())
+    book_info = '-'.join(window.main_widget.model().index(row, 0).data())
 
-    string_sent = 'down-' + info
-    client_connection.send_message(string_sent)
+    message_to_send = {'request': 'down', 'info': book_info}
+    client_connection.send_message(message_to_send)
 
-    data_stream = io.BytesIO()
-    response = ''
+    recv_message = ''
     data = client_connection.mainsock.recv(1024)
     while data and data[-4:] != b'////':
         # logging.debug('data is {}'.format(data))
-        response = response + data.decode('utf-8')
+        recv_message = recv_message + data.decode('utf-8')
         data = client_connection.mainsock.recv(1024)
 
-    response = response + data.decode('utf-8')[:-4]
-    logging.debug('response is {}'.format(response))
-    response = json.loads(response)
-    logging.debug('response is {}'.format(response))
-    if response['response'] != 'ok':
+    recv_message = recv_message + data.decode('utf-8')[:-4]
+    logging.debug('message is {}'.format(recv_message))
+    recv_message = json.loads(recv_message)
+    logging.debug('message is {}'.format(recv_message))
+    if recv_message['status'] != 'ok':
         logging.debug('Cannot locate this book')
         return
 
@@ -198,14 +202,15 @@ def click_downloadbutton(window):
     filename = file_prompt[0]
     if filename:
         stream = open(filename, 'wt')
-        stream.write(response['book'])
+        stream.write(recv_message['book'])
         stream.close()
 
 
-def click_logoutbutton(window):
+def click_logout_button(window):
     client_connection.login_status = client_connection.LoginStatusCode.LOGGED_OUT
-    window.PasswordBox.clear()
-    client_connection.send_message('logout')
+    window.password_textbox.clear()
+    message_to_send = {'request': 'logout'}
+    client_connection.send_message(message_to_send)
 
 
 def update_GUI(window):
@@ -218,16 +223,17 @@ def update_GUI(window):
         if (client_connection.lost_connection == True):
             client_connection.lost_connection = False
             server_address = str(client_connection.mainsock.getpeername()[0]) + ':' + str(client_connection.mainsock.getpeername()[1])
-            errmsg = window.showError('Lost connection', ' from server: ' + server_address)
-            errmsg.exec_()
+            error_messagebox = window.show_error('Lost connection', ' from server: ' + server_address)
+            error_messagebox.exec_()
         window.change_GUI_status(window.ConnectStatusCode.DISCONNECTED)
     elif (client_connection.connect_status == client_connection.ConnectStatusCode.CONNECTED):               # in-connecting
         if (client_connection.login_status == client_connection.LoginStatusCode.LOGGED_IN):
             window.change_GUI_status(window.ConnectStatusCode.CONNECTED, window.LoginStatusCode.LOGGED_IN)
         else:
             window.change_GUI_status(window.ConnectStatusCode.CONNECTED, window.LoginStatusCode.LOGGED_OUT)
-        # sent '00' after every 1000ms to check server's signal
-        client_connection.send_message('00')
+        # sent ping request after every 1000ms to check server's signal
+        message_to_send = {'request': 'ping'}
+        client_connection.send_message(message_to_send)
 
 
 def on_quit():
@@ -240,13 +246,13 @@ def on_quit():
 def connect_GUI_feature(window):
     app.lastWindowClosed.connect(on_quit)
     window.timer_update_GUI.timeout.connect(lambda: update_GUI(window))
-    window.add_click_behavior(window.ConnectButton, lambda: click_connectbutton(window))
-    window.add_click_behavior(window.SignupButton, lambda: click_signupbutton(window))
-    window.add_click_behavior(window.LoginButton, lambda: click_loginbutton(window))
-    window.add_click_behavior(window.SearchButton, lambda: click_searchbutton(window))
-    window.add_click_behavior(window.ViewButton, lambda: click_viewbutton(window))
-    window.add_click_behavior(window.DownloadButton, lambda: click_downloadbutton(window))
-    window.add_click_behavior(window.LogoutButton, lambda: click_logoutbutton(window))
+    window.add_click_behavior(window.connect_button, lambda: click_connect_button(window))
+    window.add_click_behavior(window.signup_button, lambda: click_signup_button(window))
+    window.add_click_behavior(window.login_button, lambda: click_login_button(window))
+    window.add_click_behavior(window.search_button, lambda: click_search_button(window))
+    window.add_click_behavior(window.view_button, lambda: click_view_button(window))
+    window.add_click_behavior(window.download_button, lambda: click_download_button(window))
+    window.add_click_behavior(window.logout_button, lambda: click_logout_button(window))
 
 
 if __name__ == '__main__':

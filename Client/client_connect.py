@@ -1,3 +1,4 @@
+import json
 import socket
 import sys
 import time
@@ -31,7 +32,7 @@ class ClientConnect:
             self.connect_status = self.ConnectStatusCode.CONNECTED
 
     def send_message(self, message):
-        message = message.encode('utf-8')
+        message = json.dumps(message).encode('utf-8')
         try:
             self.mainsock.sendall(message)
         except:  # ConnectionAbortedError and ConnectionResetError
@@ -41,7 +42,7 @@ class ClientConnect:
 
     def stop_connection(self):
         logging.debug('Closed connection to {}'.format(self.mainsock.getpeername()))
-        end_message = 'Close'
+        end_message = {'request': 'close_connection'}
         self.send_message(end_message)
         self.connect_status = self.ConnectStatusCode.DISCONNECTED
         self.login_status = self.LoginStatusCode.LOGGED_OUT
