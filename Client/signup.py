@@ -2,31 +2,33 @@ import socket
 import sys
 from PySide6 import QtCore, QtWidgets, QtGui
 import logging
+import json
+
 
 class SignUpDialog(QtWidgets.QDialog):
     def __init__(self, sock):
         super().__init__()
         self.setWindowTitle('Sign up')
-        self.sock = sock     
+        self.sock = sock
         self.resize(300, 80)
 
         self.label_username = QtWidgets.QLabel("Username", self)
-        self.UsernameBox = QtWidgets.QLineEdit(self)
-        self.UsernameRegex = QtCore.QRegularExpression("[A-Za-z0-9._]+")
-        self.UsernameValidator = QtGui.QRegularExpressionValidator(self.UsernameRegex)
-        self.UsernameBox.setValidator(self.UsernameValidator)
-        self.UsernameBox.setFixedWidth(100)
+        self.username_textbox = QtWidgets.QLineEdit(self)
+        self.username_regex = QtCore.QRegularExpression("[A-Za-z0-9._]+")
+        self.username_validator = QtGui.QRegularExpressionValidator(self.username_regex)
+        self.username_textbox.setValidator(self.username_validator)
+        self.username_textbox.setFixedWidth(100)
         self.label_username.move(10, 10)
-        self.UsernameBox.move(100, 10)
+        self.username_textbox.move(100, 10)
 
         self.label_password = QtWidgets.QLabel("Password", self)
-        self.PasswordBox = QtWidgets.QLineEdit(self)
-        self.PasswordRegex = QtCore.QRegularExpression("[^-\s]+")
-        self.PasswordValidator = QtGui.QRegularExpressionValidator(self.PasswordRegex)
-        self.PasswordBox.setValidator(self.PasswordValidator)
-        self.PasswordBox.setFixedWidth(100)
+        self.password_textbox = QtWidgets.QLineEdit(self)
+        self.password_regex = QtCore.QRegularExpression("[^-\s]+")
+        self.password_validator = QtGui.QRegularExpressionValidator(self.password_regex)
+        self.password_textbox.setValidator(self.password_validator)
+        self.password_textbox.setFixedWidth(100)
         self.label_password.move(10, 40)
-        self.PasswordBox.move(100, 40)
+        self.password_textbox.move(100, 40)
 
         self.SignUpButton = QtWidgets.QPushButton('Sign up!', self)
         self.SignUpButton.setFixedSize(60, 60)
@@ -36,31 +38,32 @@ class SignUpDialog(QtWidgets.QDialog):
 
     def sent_signup(self):
         # remember to check username and password condition before sent register request
-        username = self.UsernameBox.text()
-        password = self.PasswordBox.text()
+        username = self.username_textbox.text()
+        password = self.password_textbox.text()
         if len(username) < 6 or len(password) < 6:
-            MessBox = QtWidgets.QMessageBox(self)
-            MessBox.setText('Username and password length must >= 6')
-            MessBox.exec_()
+            message_box = QtWidgets.QMessageBox(self)
+            message_box.setText('Username and password length must >= 6')
+            message_box.exec_()
             return
-        string_sent = 'signup-' + username + '-' + password 
-        self.sock.sendall(string_sent.encode('utf-8'))
-        recv_data = self.sock.recv(1024)
+        #string_sent = 'signup-' + username + '-' + password
+        message = {'request': 'signup', 'username': username, 'password': password}
+        self.sock.sendall(json.dumps(message).encode('utf-8'))
+        recv_message = self.sock.recv(1024)
+        recv_message = json.loads(recv_message.decode('utf8'))
         #recv_data = '02-ok'.encode('utf-8')
-        if recv_data.decode('utf-8') == 'signup-ok':
-            MessBox = QtWidgets.QMessageBox(self)
-            MessBox.setText('Successful')
-            MessBox.exec_()
+        if recv_message['request'] == 'signup' and recv_message['status'] == 'ok':
+            message_box = QtWidgets.QMessageBox(self)
+            message_box.setText('Successful')
+            message_box.exec_()
             self.close()
         else:
-            MessBox = QtWidgets.QMessageBox(self)
-            MessBox.setText('Username already existed')
-            MessBox.exec_()
+            message_box = QtWidgets.QMessageBox(self)
+            message_box.setText('Username/password already existed')
+            message_box.exec_()
 
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication([])
     window = SignUpDialog(0)
-    #print(window.list_process_data)
     window.show()
     sys.exit(app.exec_())

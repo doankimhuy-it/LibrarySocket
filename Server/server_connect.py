@@ -76,17 +76,18 @@ class ServerConnection:
         _address = _key.data
         if _mask & selectors.EVENT_READ:
             try:
-                recv_data = _sock.recv(1024)  # read data
+                recv_message = _sock.recv(1024)  # read data
+                recv_message = json.loads(recv_message.decode('utf8'))
             except ConnectionResetError:
                 logging.debug('Lost connection from {}'.format(_address))
                 self.stop_connect(_sock)
             else:
-                if recv_data and recv_data != b'Close':
-                    if recv_data == b'00':
+                if recv_message and recv_message['request'] != 'close_connection':
+                    if recv_message['request'] == 'ping':
                         logging.debug('PING from {}'.format(_address))
                     else:
-                        logging.debug('Message from {}: {}'.format(_address, recv_data))
-                        self.handle_message(_sock, recv_data)
+                        logging.debug('Message from {}: {}'.format(_address, recv_message['request']))
+                        self.handle_message(_sock, recv_message)
                 else:
                     logging.debug('Closing connection to {}'.format(_address))
                     self.stop_connect(_sock)
@@ -94,59 +95,63 @@ class ServerConnection:
         if _mask & selectors.EVENT_WRITE:
             pass
 
-    def handle_message(self, _sock, message):
-        message = message.decode('utf-8').split('-')
-        request_code = message[0]
-        command = message[1:]
+    def handle_message(self, _sock, recv_message):
+        request_code = recv_message['request']
+        logging.debug('request code is {}'.format(recv_message['request']))
 
-        logging.debug('request code is {}'.format(request_code))
         if request_code == 'signup':
             # implement sql lookup and respond for sign-in request
-            username = command[0]
-            password = command[1]
+            username = recv_message['username']
+            password = recv_message['password']
             if self.SQL.add_user(username, password) == True:
-                _sock.sendall('signup-ok'.encode('utf-8'))
+                message_to_send = {'request': 'signup', 'status': 'ok'}
+                _sock.sendall(json.dumps(message_to_send).encode('utf8'))
                 logging.debug('signup-ok')
             else:
-                _sock.sendall('signup-error'.encode('utf-8'))
-                logging.debug('signup-fail')
+                message_to_send = {'request': 'signup', 'status': 'failed'}
+                _sock.sendall(json.dumps(message_to_send).encode('utf8'))
+
         elif request_code == 'login':
             # implement sql lookup and respond for sign-up request
-            username = command[0]
-            password = command[1]
+            username = recv_message['username']
+            password = recv_message['password']
             if self.SQL.login(username, password) == True:
-                _sock.sendall('login-ok'.encode('utf-8'))
+                message_to_send = {'request': 'login', 'status': 'ok'}
+                _sock.sendall(json.dumps(message_to_send).encode('utf8'))
                 self.is_loggedin = True
             else:
-                _sock.sendall('login-error'.encode('utf-8'))
+                message_to_send = {'request': 'login', 'status': 'failed'}
+                _sock.sendall(json.dumps(message_to_send).encode('utf8'))
+
         elif request_code == 'search':
-            listbook = self.SQL.get_list_book(command[0], command[1].upper())
-            response = {'code' : 'search'}
-            if len(listbook) == 0:
-                response['response'] = 'error'
+            book_list = self.SQL.get_book_list(recv_message['type'], recv_message['value'].upper())
+            message_to_send = {'request': 'search'}
+            if len(book_list) == 0:
+                message_to_send['status'] = 'error'
             else:
-                response['response'] = 'ok'
-                response['books'] = listbook
-            _sock.sendall(json.dumps(response).encode('utf-8'))
+                message_to_send['status'] = 'ok'
+                message_to_send['books'] = book_list
+            _sock.sendall(json.dumps(message_to_send).encode('utf-8'))
             _sock.sendall('////'.encode('utf-8'))
 
         elif request_code == 'down' or request_code == 'view':
             # implement sql lookup and respond for downloading book request
-            ID = username = command[0]
-            response = {'code' : 'down'}
+            ID = recv_message['info'].split('-')[0]
+            message_to_send = {'request': 'down'}
             filelocation = self.SQL.get_book_link(ID)
             filelocation = 'books/a.txt'
             try:
                 book_stream = open(filelocation, 'rt')
             except IOError:
-                response['response'] = 'error'
+                message_to_send['status'] = 'error'
             else:
-                s = book_stream.read() 
+                s = book_stream.read()
                 book_stream.close()
-                response['response'] = 'ok'
-                response['book'] = s
-            _sock.sendall(json.dumps(response).encode('utf-8'))
+                message_to_send['status'] = 'ok'
+                message_to_send['book'] = s
+            _sock.sendall(json.dumps(message_to_send).encode('utf-8'))
             _sock.sendall('////'.encode('utf-8'))
+
         elif request_code == 'logout':
             self.is_loggedin = False
 
