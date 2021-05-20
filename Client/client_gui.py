@@ -206,10 +206,10 @@ class TableModel(QtCore.QAbstractTableModel):
         self.mylist = mylist
         self.header = header
 
-    def row_count(self):
+    def rowCount(self, parent):
         return len(self.mylist)
 
-    def column_count(self):
+    def columnCount(self, parent):
         return len(self.mylist[0])
 
     def data(self, index, role):
@@ -219,11 +219,11 @@ class TableModel(QtCore.QAbstractTableModel):
             return None
         return self.mylist[index.row()][index.column()]
 
-    def header_data(self, col, orientation, role):
+    def headerData(self, col, orientation, role):
         if orientation == QtCore.Qt.Horizontal and role == QtCore.Qt.DisplayRole:
             return self.header[col]
         else:
-            return QtCore.QAbstractTableModel.header_data(self, col, orientation, role)
+            return QtCore.QAbstractTableModel.headerData(self, col, orientation, role)
 
     def sort(self, col, order):
         self.emit(QtCore.SIGNAL("layoutAboutToBeChanged()"))
