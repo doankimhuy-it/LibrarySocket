@@ -85,6 +85,8 @@ def click_login_button(window):
             message_box.exec_()
         else:
             client_connection.login_status = client_connection.LoginStatusCode.LOGGED_IN
+            window.book_info_textbox.clear()
+            window.main_widget.model().deleteLater()
 
 
 def click_search_button(window):
