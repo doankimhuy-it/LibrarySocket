@@ -184,9 +184,9 @@ class ClientWindow(QtWidgets.QMainWindow):
             book['ID'] = str(book['ID'])
             book['Release year'] = str(book['Release year'])
             book_list.append(list(book.values()))
-        logging.debug('booklist is : {}'.format(len(book_list[0])))
         model = TableModel(self, book_list, header)
         self.main_widget.setModel(model)
+        self.main_widget.setColumnWidth(0, 10)
         return book_list
 
     class ConnectStatusCode(Enum):
