@@ -78,7 +78,7 @@ def click_view_button(window):
 
     book_content = client_connection.view_request(ID)
     if not book_content:
-        window.MessageError('Cannot locate book')
+        window.MessageError('Book deleted on server!')
     else:
         window.show_book_content(book_content)
     

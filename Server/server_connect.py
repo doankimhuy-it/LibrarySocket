@@ -96,65 +96,82 @@ class ServerConnection:
             pass
 
     def handle_message(self, _sock, recv_message):
+        logging.debug('request is {}'.format(recv_message))
         request_code = recv_message['request']
-        logging.debug('requét is {}'.format(recv_message))
 
         if request_code == 'signup':
             # implement sql lookup and respond for sign-in request
             username = recv_message['username']
             password = recv_message['password']
-            if self.SQL.add_user(username, password) == True:
-                message_to_send = {'request': 'signup', 'status': 'ok'}
-                _sock.sendall(json.dumps(message_to_send).encode('utf8'))
-                logging.debug('signup-ok')
-            else:
-                message_to_send = {'request': 'signup', 'status': 'failed'}
-                _sock.sendall(json.dumps(message_to_send).encode('utf8'))
-
-        elif request_code == 'login':
+            self.respond_signup(username, password, _sock)
+            
+        if request_code == 'login':
             # implement sql lookup and respond for sign-up request
             username = recv_message['username']
             password = recv_message['password']
-            if self.SQL.login(username, password) == True:
-                message_to_send = {'request': 'login', 'status': 'ok'}
-                _sock.sendall(json.dumps(message_to_send).encode('utf8'))
-                self.is_loggedin = True
-            else:
-                message_to_send = {'request': 'login', 'status': 'failed'}
-                _sock.sendall(json.dumps(message_to_send).encode('utf8'))
-
-        elif request_code == 'search':
-            book_list = self.SQL.get_book_list(recv_message['type'], recv_message['value'].upper())
-            message_to_send = {'request': 'search'}
-            if len(book_list) == 0:
-                message_to_send['status'] = 'error'
-            else:
-                message_to_send['status'] = 'ok'
-                message_to_send['books'] = book_list
-            _sock.sendall(json.dumps(message_to_send).encode('utf-8'))
-            _sock.sendall('////'.encode('utf-8'))
-
-        elif request_code == 'down' or request_code == 'view':
+            self.respond_login(username, password, _sock)
+            
+        if request_code == 'search':
+            book_type = recv_message['type']
+            value = recv_message['value'].upper()
+            self.respond_search(book_type, value, _sock)
+            
+        if request_code == 'down' or request_code == 'view':
             # implement sql lookup and respond for downloading book request
             ID = recv_message['ID']
-            message_to_send = {'request': 'down'}
-            filelocation = self.SQL.get_book_link(ID)
-            filelocation = 'books/a.txt'
-            try:
-                book_stream = open(filelocation, 'rt')
-            except IOError:
-                message_to_send['status'] = 'error'
-            else:
-                s = book_stream.read()
-                book_stream.close()
-                message_to_send['status'] = 'ok'
-                message_to_send['book'] = s
-            _sock.sendall(json.dumps(message_to_send).encode('utf-8'))
-            _sock.sendall('////'.encode('utf-8'))
-
-        elif request_code == 'logout':
+            self.respond_view_down(ID, _sock)
+            
+        if request_code == 'logout':
             self.is_loggedin = False
 
+
+    def respond_signup(self, username, password, _sock):
+        if self.SQL.add_user(username, password) == True:
+            message_to_send = {'request': 'signup', 'status': 'ok'}
+            _sock.sendall(json.dumps(message_to_send).encode('utf8'))
+            logging.debug('signup-ok')
+            return True
+        else:
+            message_to_send = {'request': 'signup', 'status': 'failed'}
+            _sock.sendall(json.dumps(message_to_send).encode('utf8'))
+            return False
+
+    def respond_login(self, username, password, _sock):
+        if self.SQL.login(username, password) == True:
+            message_to_send = {'request': 'login', 'status': 'ok'}
+            _sock.sendall(json.dumps(message_to_send).encode('utf8'))
+            self.is_loggedin = True
+            return True
+        else:
+            message_to_send = {'request': 'login', 'status': 'failed'}
+            _sock.sendall(json.dumps(message_to_send).encode('utf8'))
+            return False
+
+    def respond_search(self, book_type, value, _sock):
+        book_list = self.SQL.get_book_list(book_type, value)
+        message_to_send = {'request': 'search'}
+        if len(book_list) == 0:
+            message_to_send['status'] = 'error'
+        else:
+            message_to_send['status'] = 'ok'
+            message_to_send['books'] = book_list
+        _sock.sendall(json.dumps(message_to_send).encode('utf-8'))
+        _sock.sendall('////'.encode('utf-8'))
+
+    def respond_view_down(self, ID, _sock):
+        message_to_send = {'request': 'down'}
+        filelocation = self.SQL.get_book_link(ID)[0][0]
+        try:
+            book_stream = open(filelocation, 'rt')
+        except IOError:
+            message_to_send['status'] = 'error'
+        else:
+            s = book_stream.read()
+            book_stream.close()
+            message_to_send['status'] = 'ok'
+            message_to_send['book'] = s
+        _sock.sendall(json.dumps(message_to_send).encode('utf-8'))
+        _sock.sendall('////'.encode('utf-8'))
 
 if __name__ == '__main__':
     host = '0.0.0.0'    # all network interface
