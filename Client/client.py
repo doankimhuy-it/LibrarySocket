@@ -91,8 +91,8 @@ def click_download_button(window):
 
     book_content = client_connection.download_request(ID)
     if not book_content:
-        logging.debug('Cannot locate this book')
-        window.MessageError('Cannot locate this book')
+        logging.debug('Book deleted on server!')
+        window.MessageError('Book deleted on server!')
         return
 
     file_filter = 'Text Document (*.txt)'
