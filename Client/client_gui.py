@@ -126,6 +126,60 @@ class ClientWindow(QtWidgets.QMainWindow):
         self.book_groupbox.setVisible(False)
 
     @QtCore.Slot()
+    def MessageError(self, message, title = 'Error', width = None, info_icon = None):
+        message_box = QtWidgets.QMessageBox(self)
+        message_box.setText(message)
+        message_box.setWindowTitle(title)
+        if width:
+            message_box.setFixedWidth(width)
+        if info_icon:
+            message_box.setIcon(QtWidgets.QMessageBox.Information)
+        message_box.exec_()
+
+    def get_username_password(self):
+        username = self.username_textbox.text()
+        password = self.password_textbox.text()
+        if (len(username) < 6) or (len(password) < 4):
+            mess = 'Username must be longer than 5 characters\nPassword must be longer than 3 charaters \
+                        \nRe-enter information to continue'
+            title = 'Username/Password error'
+            self.MessageError(mess, title, width = 200, info_icon=True)
+            return [None, None]
+        return [username, password]
+        
+    def value_to_search(self):
+        value = self.book_info_textbox.text()
+        search_type = self.book_combobox.currentText()
+        if len(value) == 0:
+            self.MessageError('No value to search')
+            return [None, None]
+        return [search_type[2:], value]
+
+    def ID_selected_book(self):
+        index = self.main_widget.selectedIndexes()
+        if not index:
+            logging.debug('No book selected')
+            self.MessageError('Select a book to view')
+            return None
+        row = index[0].row()
+        ID = self.main_widget.model().index(row, 0).data()
+        return ID
+
+    def show_book_content(self, book_content):
+        view_diag = QtWidgets.QDialog(self)
+        view_diag.setWindowTitle('Book content')
+        view_diag.setFixedSize(400, 400)
+
+        book_content_dialog = QtWidgets.QTextEdit(view_diag)
+        book_content_dialog.move(10, 10)
+        book_content_dialog.setFixedSize(380, 380)
+        book_content_dialog.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
+        book_content_dialog.setReadOnly(True)
+        book_content_dialog.setWordWrapMode(QtGui.QTextOption.WordWrap)
+
+        book_content_dialog.setText(book_content)
+        view_diag.show()
+
     def add_click_behavior(self, obj, func):
         obj.clicked.connect(func)
 
@@ -166,15 +220,6 @@ class ClientWindow(QtWidgets.QMainWindow):
             self.connect_status_box.setStyleSheet("border: 1.5px solid black; font-weight: bold; color: brown;")
             self.login_groupbox.setVisible(False)
             self.book_groupbox.setVisible(False)
-
-    def show_error(self, error='NO CONNECTIONS', message='Please connect to server first'):
-        msg = QtWidgets.QMessageBox()
-        msg.setFixedWidth(200)
-        msg.setIcon(QtWidgets.QMessageBox.Critical)
-        msg.setText(error)
-        msg.setInformativeText(message)
-        msg.setWindowTitle(error)
-        return msg
 
     def list_book_to_table(self, book_dict):
         header = ['ID', 'Name', 'Category', 'Authors', 'Release year']

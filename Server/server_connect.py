@@ -97,7 +97,7 @@ class ServerConnection:
 
     def handle_message(self, _sock, recv_message):
         request_code = recv_message['request']
-        logging.debug('request code is {}'.format(recv_message['request']))
+        logging.debug('requét is {}'.format(recv_message))
 
         if request_code == 'signup':
             # implement sql lookup and respond for sign-in request
@@ -136,7 +136,7 @@ class ServerConnection:
 
         elif request_code == 'down' or request_code == 'view':
             # implement sql lookup and respond for downloading book request
-            ID = recv_message['info'].split('-')[0]
+            ID = recv_message['ID']
             message_to_send = {'request': 'down'}
             filelocation = self.SQL.get_book_link(ID)
             filelocation = 'books/a.txt'
