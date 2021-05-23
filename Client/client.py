@@ -115,10 +115,12 @@ def click_search_button(window):
         data = client_connection.mainsock.recv(1024).decode('utf-8')
     recv_message = recv_message + str(data[:-4])
     recv_message = json.loads(recv_message)
-    logging.debug('book receive: {}'.format(recv_message))
+    logging.debug('Books received: {}'.format(recv_message))
 
     if recv_message['status'] != 'ok':
         message_box = QtWidgets.QMessageBox(window)
+        message_box.setWindowTitle('Error')
+        message_box.setIcon(QtWidgets.QMessageBox.Information)
         message_box.setText('No books available')
         message_box.exec_()
     else:
