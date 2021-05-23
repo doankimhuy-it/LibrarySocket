@@ -17,21 +17,21 @@ class SignUpDialog(QtWidgets.QDialog):
         self.username_regex = QtCore.QRegularExpression("[A-Za-z0-9._]+")
         self.username_validator = QtGui.QRegularExpressionValidator(self.username_regex)
         self.username_textbox.setValidator(self.username_validator)
-        self.username_textbox.setFixedWidth(100)
+        self.username_textbox.setFixedWidth(120)
         self.label_username.move(10, 10)
-        self.username_textbox.move(100, 10)
+        self.username_textbox.move(85, 10)
 
         self.label_password = QtWidgets.QLabel("Password", self)
         self.password_textbox = QtWidgets.QLineEdit(self)
         self.password_regex = QtCore.QRegularExpression("[^-\s]+")
         self.password_validator = QtGui.QRegularExpressionValidator(self.password_regex)
         self.password_textbox.setValidator(self.password_validator)
-        self.password_textbox.setFixedWidth(100)
+        self.password_textbox.setFixedWidth(120)
         self.label_password.move(10, 40)
-        self.password_textbox.move(100, 40)
+        self.password_textbox.move(85, 40)
 
         self.SignUpButton = QtWidgets.QPushButton('Sign up!', self)
-        self.SignUpButton.setFixedSize(60, 60)
+        self.SignUpButton.setFixedSize(60, 53)
         self.SignUpButton.move(220, 10)
 
         self.SignUpButton.clicked.connect(self.sent_signup)
@@ -40,9 +40,11 @@ class SignUpDialog(QtWidgets.QDialog):
         # remember to check username and password condition before sent register request
         username = self.username_textbox.text()
         password = self.password_textbox.text()
-        if len(username) < 6 or len(password) < 6:
+        if len(username) < 6 or len(password) < 4:
             message_box = QtWidgets.QMessageBox(self)
-            message_box.setText('Username and password length must >= 6')
+            message_box.setIcon(QtWidgets.QMessageBox.Information)
+            message_box.setText('Username length must >= 6 and password length must >= 4')
+            message_box.setWindowTitle('Error')
             message_box.exec_()
             return
         #string_sent = 'signup-' + username + '-' + password
