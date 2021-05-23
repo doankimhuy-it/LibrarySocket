@@ -27,6 +27,7 @@ class SignUpDialog(QtWidgets.QDialog):
         self.password_validator = QtGui.QRegularExpressionValidator(self.password_regex)
         self.password_textbox.setValidator(self.password_validator)
         self.password_textbox.setFixedWidth(120)
+        self.password_textbox.setEchoMode(QtWidgets.QLineEdit.Password)
         self.label_password.move(10, 40)
         self.password_textbox.move(85, 40)
 
@@ -55,12 +56,16 @@ class SignUpDialog(QtWidgets.QDialog):
         #recv_data = '02-ok'.encode('utf-8')
         if recv_message['request'] == 'signup' and recv_message['status'] == 'ok':
             message_box = QtWidgets.QMessageBox(self)
-            message_box.setText('Successful')
+            message_box.setIcon(QtWidgets.QMessageBox.Information)
+            message_box.setText('Successfully created account')
+            message_box.setWindowTitle('Successful')
             message_box.exec_()
             self.close()
         else:
             message_box = QtWidgets.QMessageBox(self)
+            message_box.setIcon(QtWidgets.QMessageBox.Information)
             message_box.setText('Username/password already existed')
+            message_box.setWindowTitle('Error')
             message_box.exec_()
 
 
