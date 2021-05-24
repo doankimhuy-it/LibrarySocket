@@ -3,6 +3,8 @@ import socket       # socket
 import logging
 import SQL_Query
 import json
+import os
+
 logging.basicConfig(level=logging.DEBUG)
 
 
@@ -165,7 +167,7 @@ class ServerConnection:
 
     def respond_view_down(self, ID, _sock):
         message_to_send = {'request': 'down'}
-        filelocation = self.SQL.get_book_link(ID)[0][0]
+        filelocation = os.path.join(os.path.dirname(__file__), self.SQL.get_book_link(ID)[0][0])
         try:
             book_stream = open(filelocation, 'rt')
         except IOError:

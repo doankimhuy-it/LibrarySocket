@@ -1,12 +1,10 @@
 import sys
 import threading
 import logging
-from PySide6 import QtCore, QtWidgets, QtGui
+from PySide6 import QtWidgets
 import client_gui
 import client_connect
 import signup
-import io
-import json
 
 client_connection = client_connect.ClientConnect()
 
@@ -49,6 +47,7 @@ def click_signup_button(window):
     subthread = threading.Thread(target=signup_dialog.exec_(), args=())
     subthread.start()
 
+
 def click_login_button(window):
     username, password = window.get_username_password()
     if username:
@@ -84,10 +83,10 @@ def click_view_button(window):
         window.MessageError('Book deleted on server!')
     else:
         window.show_book_content(book_content)
-    
+
 
 def click_download_button(window):
-    
+
     ID = window.ID_selected_book()
     if not ID:
         return
@@ -133,7 +132,7 @@ def update_GUI(window):
             window.MessageError(err)
 
         window.change_GUI_status(window.ConnectStatusCode.DISCONNECTED)
-    
+
     if (connect_status == client_connection.ConnectStatusCode.CONNECTED):               # in-connecting
         if (client_connection.login_status == client_connection.LoginStatusCode.LOGGED_IN):
             window.change_GUI_status(window.ConnectStatusCode.CONNECTED, window.LoginStatusCode.LOGGED_IN)

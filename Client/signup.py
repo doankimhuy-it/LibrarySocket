@@ -1,7 +1,5 @@
-import socket
 import sys
 from PySide6 import QtCore, QtWidgets, QtGui
-import logging
 import json
 
 

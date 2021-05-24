@@ -1,7 +1,5 @@
 import json
 import socket
-import sys
-import time
 import logging
 from enum import Enum, auto
 # for debugging
