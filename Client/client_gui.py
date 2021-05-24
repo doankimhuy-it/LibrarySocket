@@ -39,7 +39,7 @@ class ClientWindow(QtWidgets.QMainWindow):
         self.connect_status_box = QtWidgets.QLabel("DISCONNECTED!", self, alignment=QtCore.Qt.AlignCenter)
         self.connect_status_box.move(460, 20)
         self.connect_status_box.setFixedWidth(120)
-        self.connect_status_box.setStyleSheet("border: 1.5px solid black; font-weight: bold; color : red;")
+        self.connect_status_box.setStyleSheet("border: 1.5px solid black; font-weight: bold; color: red;")
 
         # Login/Logout group box
         self.login_groupbox = QtWidgets.QGroupBox("Login/Sign up", self)
