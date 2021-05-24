@@ -74,7 +74,7 @@ class ClientConnect:
             return recv_message['book']
 
     def logout_request(self):
-        self.login_status = client_connection.LoginStatusCode.LOGGED_OUT
+        self.login_status = self.LoginStatusCode.LOGGED_OUT
         message_to_send = {'request': 'logout'}
         self.send_message(message_to_send)
 
