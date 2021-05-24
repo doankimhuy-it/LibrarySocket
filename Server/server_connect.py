@@ -13,7 +13,7 @@ class ServerConnection:
         self.host = host
         self.port = port
         self.SQL = SQL_Query.SQL_CONNECT('localhost', 'LIBRARYSOCKET', 'sa', '1234')
-        self.is_loggedin = False
+        self.user_login = {}
 
     def start_listen(self):
         self.server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # USE TCP/IP Connection
@@ -110,7 +110,12 @@ class ServerConnection:
             username = recv_message['username']
             password = recv_message['password']
             self.respond_login(username, password, _sock)
-            
+
+        if (_sock not in self.user_login.keys()):
+            return 
+        if (self.user_login[_sock] != True):
+            return
+
         if request_code == 'search':
             book_type = recv_message['type']
             value = recv_message['value'].upper()
@@ -122,7 +127,7 @@ class ServerConnection:
             self.respond_view_down(ID, _sock)
             
         if request_code == 'logout':
-            self.is_loggedin = False
+            self.user_login.pop(_sock)
 
 
     def respond_signup(self, username, password, _sock):
@@ -140,7 +145,7 @@ class ServerConnection:
         if self.SQL.login(username, password) == True:
             message_to_send = {'request': 'login', 'status': 'ok'}
             _sock.sendall(json.dumps(message_to_send).encode('utf8'))
-            self.is_loggedin = True
+            self.user_login[_sock] = True
             return True
         else:
             message_to_send = {'request': 'login', 'status': 'failed'}
