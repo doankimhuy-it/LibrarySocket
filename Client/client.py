@@ -35,7 +35,10 @@ def click_connect_button(window):
 
     elif (client_connection.connect_status == client_connection.ConnectStatusCode.CONNECTED):
         # Users choose to close connection
+        client_connection.logout_request()
         client_connection.stop_connection()
+        window.username_textbox.clear()
+        window.password_textbox.clear()
         window.change_GUI_status(window.ConnectStatusCode.DISCONNECTED)
         # stop the timer
         window.timer_update_GUI.stop()
