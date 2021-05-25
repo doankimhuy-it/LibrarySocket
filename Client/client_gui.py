@@ -153,6 +153,9 @@ class ClientWindow(QtWidgets.QMainWindow):
         if len(value) == 0:
             self.MessageError('No value to search')
             return [None, None]
+        if search_type == 'F_ID':
+            if value.isnumeric() == False:
+                return [None, None]
         return [search_type[2:], value]
 
     def ID_selected_book(self):
