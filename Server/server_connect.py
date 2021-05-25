@@ -167,7 +167,7 @@ class ServerConnection:
 
     def respond_view_down(self, ID, _sock):
         message_to_send = {'request': 'down'}
-        filelocation = os.path.join(os.path.dirname(__file__), self.SQL.get_book_link(ID)[0][0])
+        filelocation = self.SQL.get_book_link(ID)[0][0]
         try:
             book_stream = open(filelocation, 'rt')
         except IOError:
